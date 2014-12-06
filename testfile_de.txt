@@ -1,0 +1,2 @@
+Dies ist eine Beispieldatei, in der einige Sätze zu finden ist. Die Datei
+ist als UTF-8 kodiert.
