@@ -9,67 +9,42 @@ import java.nio.charset.Charset;
 
 import org.apache.commons.cli.Options;
 
-import webcorp.tokens.DFATokenizer;
-import webcorp.tokens.Token;
-import exml.MarkableLevel;
-import exml.MissingObjectException;
+import de.versley.exml.annotators.DepToConst;
+import de.versley.exml.annotators.MATEAnnotator;
 import exml.io.DocumentWriter;
 import exml.tueba.TuebaDocument;
-import exml.tueba.TuebaSentenceMarkable;
-import exml.tueba.TuebaTerminal;
 
 public class TextToEXML {
 	static Options options;
 
 	static {
 		options = new Options();
+		options.addOption("lang", true, "language (default:de)");
 	}
 
-	public static TuebaDocument documentFromText(String string) {
-		// TODO instantiate tokenizer, read in file, return document
-		DFATokenizer tokenizer = new DFATokenizer("de");
-		TuebaDocument doc = new TuebaDocument();
-		MarkableLevel<TuebaSentenceMarkable> sentLevel = doc.sentences;
-		int sent_no = 1;
-		int w_no = 1;
-		int sent_start = 0;
-		for (Token tok: tokenizer.tokenize(string, 0)) {
-			if (tok.isSentStart() && doc.size()!=sent_start) {
-				try {
-					TuebaSentenceMarkable m_sent = sentLevel.addMarkable(sent_start, doc.size());
-					m_sent.setXMLId(String.format("s%d",  sent_no));
-					sent_no++;
-					w_no = 1;
-					sent_start = doc.size();
-				} catch (MissingObjectException e) {
-					e.printStackTrace();
-					throw new RuntimeException(e);
-				}
-			}
-			TuebaTerminal n = doc.createTerminal(tok.value);
-			n.setXMLId(String.format("s%d_%d", sent_no, w_no));
-			doc.nameForObject(n);
-			// System.out.println(tok.value);
-			n.setWord(tok.value);
-			w_no++;
-		}
-		if (doc.size()!=sent_start) {
-			try {
-				TuebaSentenceMarkable m_sent = sentLevel.addMarkable(sent_start, doc.size());
-				m_sent.setXMLId(String.format("s%d",  sent_no));
-				sent_no++;
-				w_no = 1;
-			} catch (MissingObjectException e) {
-				e.printStackTrace();
-				throw new RuntimeException(e);
-			}
-		}
-		return doc;
-	}
-
+    // TODO: pipeline implementation around it
+	// * use input/output directory and globbing
+	// * detect file type (.txt/.html.pdf)
+	// * implement HTML de-boilerplating with boilerpipe
+	// * use Tiedemann's pdf2xml postprocessing
+	// TODO: actually use some of that stuff
+	// * Pipeline 1: use BerkeleyParser + lemmatizer + maybe some funtag-style function labels
+	// * Pipeline 2: use MATE-tools (newest version with integrated pos+morph tagging + maybe dep2const converter
+	// more complex stuff:
+	// * integrate NER (marmot+clusters w/TüBa or Stanford-based)
+	// * use IMSCoref or BART [mention detection + coreference]
+	// * sentiment? SRL? normalization?
+	// additional output options:
+	// * EXML-JSON
 	public static void main(String[] args) {
+		MATEAnnotator mate_ann = new MATEAnnotator("/home/yannick/data/mate_models/");
+		DepToConst make_const = new DepToConst();
 		try {
-			TuebaDocument doc = documentFromText(readFile(args[0]));
+			ExmlDocBuilder db = new ExmlDocBuilder("de");
+			db.addText(readFile(args[0]));
+			TuebaDocument doc = db.getDocument();
+			mate_ann.annotate(doc);
+			make_const.annotate(doc);
 			OutputStream os;
 			if (args.length > 1) {
 				os = new FileOutputStream(args[1]);
@@ -92,6 +67,7 @@ public class TextToEXML {
 		while ((n=rd.read(buf))!=-1) {
 			sb.append(buf, 0, n);
 		}
+		rd.close();
 		return sb.toString();
 	}
 }
