@@ -32,5 +32,10 @@
 		<dependency org="org.codehaus.jackson" name="jackson-mapper-asl"
 			rev="1.9.13" />
 		<dependency org="org.apache.ant" name="ant" rev="1.9.4" />
+		<dependency org="edu.berkeley.nlp" name="berkeleyparser"
+			rev="r32" />
+		<dependency org="nz.ac.waikato.cms.weka" name="weka-stable"
+			rev="3.6.11" />
+       <dependency org="de.versley" name="exportxml" rev="1.0" />
 	</dependencies>
 </ivy-module> 

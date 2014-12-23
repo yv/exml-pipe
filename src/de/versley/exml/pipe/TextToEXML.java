@@ -6,10 +6,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.cli.Options;
 
-import de.versley.exml.annotators.DepToConst;
+import de.versley.exml.annotators.Annotator;
 import de.versley.exml.annotators.MATEAnnotator;
 import exml.io.DocumentWriter;
 import exml.tueba.TuebaDocument;
@@ -37,14 +39,19 @@ public class TextToEXML {
 	// additional output options:
 	// * EXML-JSON
 	public static void main(String[] args) {
-		MATEAnnotator mate_ann = new MATEAnnotator("/home/yannick/data/mate_models/");
-		DepToConst make_const = new DepToConst();
+		List<Annotator> annotators = new ArrayList<Annotator>();
+		annotators.add(new MATEAnnotator("/home/yannick/data/mate_models/"));
+		//annotators.add(new DepToConst());
+		//BPAnnotator bp_ann = new BPAnnotator("/home/yannick/data/r6_train2.gr");
+		//bp_ann.add_transform(new NodeToFunction());
+		//annotators.add(bp_ann);
 		try {
 			ExmlDocBuilder db = new ExmlDocBuilder("de");
 			db.addText(readFile(args[0]));
 			TuebaDocument doc = db.getDocument();
-			mate_ann.annotate(doc);
-			make_const.annotate(doc);
+			for (Annotator ann: annotators) {
+				ann.annotate(doc);
+			}
 			OutputStream os;
 			if (args.length > 1) {
 				os = new FileOutputStream(args[1]);

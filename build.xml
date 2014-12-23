@@ -1,0 +1,33 @@
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="bart" default="run">
+    <ivy:settings file="ivysettings.xml"/>
+    <target name="resolve" description="--> retrieve dependencies with ivy">
+        <ivy:retrieve pattern="lib/[artifact]-[revision]-[type].[ext]" />
+        <ivy:cachepath pathid="ivy.path"/>
+    </target>
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="bin/"/>
+        <mkdir dir="dist/"/>
+    </target>
+    <target name="generate.pom" depends="init">
+        <ivy:deliver deliverpattern="dist/ivy.xml" pubrevision="2.0hd"/>
+        <ivy:makepom ivyfile="dist/ivy.xml" pomfile="dist/bart-system.pom" conf="default">
+          <mapping conf="default" scope="compile"/>
+          <mapping conf="runtime" scope="runtime"/>
+        </ivy:makepom> 
+    </target>
+    <target name="compile" depends="resolve,init">
+        <path id="compile.path">
+            <path refid="ivy.path"/>
+        </path>
+        <javac destdir="bin/" srcdir="src/" encoding="UTF-8" 
+            includeantruntime="false" classpathref="compile.path"/>
+    </target>
+    <target name="dist" depends="compile">
+        <jar jarfile="dist/exmlpipe.jar" basedir="bin/"/>
+    </target>
+    <target name="publish.local" depends="dist,generate.pom" description="publish this project locally">
+        <ivy:publish artifactspattern="dist/[artifact].[ext]" resolver="share-m2"
+            overwrite="true"/>
+    </target>
+</project>

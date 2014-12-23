@@ -124,7 +124,7 @@ public class SentenceTree {
 	}
 	
 	protected int insertNodes(List<NamedObject> nodes, int node_num) {
-		System.err.println("insert nodes"+ nodes);
+		// System.err.println("insert nodes"+ nodes);
 		for (NamedObject node: nodes) {
 			try {
 				TuebaNodeMarkable n = (TuebaNodeMarkable)node;
