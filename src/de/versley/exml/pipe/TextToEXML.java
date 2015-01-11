@@ -1,18 +1,22 @@
 package de.versley.exml.pipe;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 
 import de.versley.exml.annotators.Annotator;
-import de.versley.exml.annotators.MATEAnnotator;
+import de.versley.exml.annotators.GlobalConfig;
 import exml.io.DocumentWriter;
 import exml.tueba.TuebaDocument;
 
@@ -22,6 +26,7 @@ public class TextToEXML {
 	static {
 		options = new Options();
 		options.addOption("lang", true, "language (default:de)");
+		options.addOption("pipeline", true, "pipeline (default: mate)");
 	}
 
     // TODO: pipeline implementation around it
@@ -38,15 +43,36 @@ public class TextToEXML {
 	// * sentiment? SRL? normalization?
 	// additional output options:
 	// * EXML-JSON
+	private static final String CONFIG_FNAME="exmlpipe_config.yaml";
 	public static void main(String[] args) {
-		List<Annotator> annotators = new ArrayList<Annotator>();
-		annotators.add(new MATEAnnotator("/home/yannick/data/mate_models/"));
-		//annotators.add(new DepToConst());
+		GlobalConfig conf;
+		CommandLine cmd=null;
+		try {
+			cmd = new PosixParser().parse(options, args);
+		} catch (ParseException ex) {
+			new HelpFormatter().printHelp("TextToEXML", options);
+			System.exit(1);
+		}
+		if (new File(CONFIG_FNAME).exists()) {
+			conf = GlobalConfig.load(CONFIG_FNAME);
+		} else {
+			conf = GlobalConfig.fromDefaults();
+		}
+		if (cmd.hasOption("lang")) {
+			conf.language = cmd.getOptionValue("lang");
+		}
+		if (cmd.hasOption("pipeline")) {
+			conf.default_pipeline = cmd.getOptionValue("pipeline");
+		}
+		if (!new File(CONFIG_FNAME).exists()) {
+			conf.saveAs(CONFIG_FNAME);
+		}
+		List<Annotator> annotators = conf.createAnnotators();
 		//BPAnnotator bp_ann = new BPAnnotator("/home/yannick/data/r6_train2.gr");
 		//bp_ann.add_transform(new NodeToFunction());
 		//annotators.add(bp_ann);
 		try {
-			ExmlDocBuilder db = new ExmlDocBuilder("de");
+			ExmlDocBuilder db = new ExmlDocBuilder(conf.language);
 			db.addText(readFile(args[0]));
 			TuebaDocument doc = db.getDocument();
 			for (Annotator ann: annotators) {

@@ -7,10 +7,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.incava.util.diff.Diff;
 import org.incava.util.diff.Difference;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TokenizerTest {
 	static void reportDiff(Difference d, List<String> tok1, List<String> tok2) {

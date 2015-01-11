@@ -4,6 +4,7 @@ import is2.data.SentenceData09;
 import is2.lemmatizer.Lemmatizer;
 import is2.transitionS2a.Parser;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +18,11 @@ public class MATEAnnotator implements Annotator {
 	public MATEAnnotator(String dirname) {
 		_lemmatizer = new Lemmatizer(dirname + "lemma-ger-3.6.model");
 		_parser = new Parser(dirname + "pet-ger-S2a-40-0.25-0.1-2-2-ht4-hm4-kk0");
+	}
+	
+	public MATEAnnotator(File modelDir, MATEConfig conf) {
+		_lemmatizer = new Lemmatizer(new File(modelDir, conf.lemma_fname).toString());
+		_parser = new Parser(new File(modelDir, conf.parser_fname).toString());
 	}
 	
 	public void annotate(TuebaDocument doc) {

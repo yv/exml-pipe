@@ -1,7 +1,11 @@
 package de.versley.exml.pipe;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
+
+import com.google.common.collect.Lists;
 
 import exml.objects.NamedObject;
 import exml.tueba.TuebaDocument;
@@ -34,6 +38,63 @@ public class SentenceTree {
 	}
 	public void setTerminals(List<TuebaTerminal> _terminals) {
 		this._terminals = _terminals;
+	}
+	
+	class BottomUpIterator implements Iterator<TuebaNodeMarkable> {
+		Stack<TuebaNodeMarkable> toVisit = new Stack<TuebaNodeMarkable>();
+		Stack<Integer> posn = new Stack<Integer>();
+		BottomUpIterator(List<NamedObject> roots) {
+			for (NamedObject m: Lists.reverse(roots)) {
+				try {
+					TuebaNodeMarkable node = (TuebaNodeMarkable)m;
+					toVisit.push(node);
+					posn.push(0);
+				} catch(ClassCastException ex) {}
+			}
+			
+		}
+
+		@Override
+		public boolean hasNext() {
+			return !toVisit.isEmpty();
+		}
+
+		@Override
+		public TuebaNodeMarkable next() {
+			TuebaNodeMarkable result = toVisit.peek();
+			Integer pos = posn.pop();
+			// advance over any terminals
+			while (pos != result.getChildren().size()) {
+				if (result.getChildren() instanceof TuebaTerminal) {
+					pos++;
+				} else {
+					posn.push(pos+1);
+					pos = 0;
+					result = (TuebaNodeMarkable)result.getChildren().get(pos);
+					toVisit.push(result);
+				}
+			}
+			toVisit.pop();
+			return result;
+			}
+
+		@Override
+		public void remove() {
+			throw new IllegalArgumentException();
+		}
+		
+	}
+	
+	class BottomUpIterable implements Iterable<TuebaNodeMarkable> {
+		@Override
+		public Iterator<TuebaNodeMarkable> iterator() {
+			return new BottomUpIterator(_roots);
+		}
+		
+	}
+	
+	public Iterable<TuebaNodeMarkable> ntEnumerateBottomUp() {
+		return new BottomUpIterable();
 	}
 
 	public static List<SentenceTree> getTrees(TuebaDocument doc) {

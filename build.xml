@@ -1,4 +1,4 @@
-<project xmlns:ivy="antlib:org.apache.ivy.ant" name="bart" default="run">
+<project xmlns:ivy="antlib:org.apache.ivy.ant" name="exmlpipe" default="dist">
     <ivy:settings file="ivysettings.xml"/>
     <target name="resolve" description="--> retrieve dependencies with ivy">
         <ivy:retrieve pattern="lib/[artifact]-[revision]-[type].[ext]" />
@@ -13,12 +13,15 @@
         <ivy:deliver deliverpattern="dist/ivy.xml" pubrevision="2.0hd"/>
         <ivy:makepom ivyfile="dist/ivy.xml" pomfile="dist/bart-system.pom" conf="default">
           <mapping conf="default" scope="compile"/>
-          <mapping conf="runtime" scope="runtime"/>
+          <mapping conf="*" scope="compile"/>
         </ivy:makepom> 
     </target>
     <target name="compile" depends="resolve,init">
         <path id="compile.path">
             <path refid="ivy.path"/>
+            <fileset dir="ext_lib">
+                <include name="**/*.jar"/>
+            </fileset>
         </path>
         <javac destdir="bin/" srcdir="src/" encoding="UTF-8" 
             includeantruntime="false" classpathref="compile.path"/>

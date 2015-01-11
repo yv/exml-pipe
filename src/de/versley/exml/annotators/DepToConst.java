@@ -2,13 +2,17 @@ package de.versley.exml.annotators;
 
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import weka.classifiers.Classifier;
+import weka.core.Attribute;
+import weka.core.Instance;
 import weka.core.Instances;
 import de.versley.exml.pipe.SentenceTree;
 import edu.berkeley.nlp.util.Lists;
@@ -28,6 +32,7 @@ public class DepToConst implements Annotator {
 			ObjectInputStream f = new ObjectInputStream(new FileInputStream(filename));
 			classifier = (Classifier) f.readObject();
 			dataset = (Instances) f.readObject();
+			f.close();
 		} catch (IOException | ClassNotFoundException ex) {
 			throw new RuntimeException("Cannot load Weka classifier", ex);
 		}
@@ -35,24 +40,53 @@ public class DepToConst implements Annotator {
 	public static void extractDepChildren(
 			List<TuebaTerminal> terms,
 			List<List<TuebaTerminal>> left_deps,
-			List<List<TuebaTerminal>> right_deps) {
+			List<List<TuebaTerminal>> right_deps,
+			List<List<TuebaTerminal>> left_siblings,
+			List<List<TuebaTerminal>> right_siblings) {
 		int offset = terms.get(0).getStart();
-		for (int i = 0; i < terms.size(); i++) {
+		for (int i = 0; i < terms.size()+1; i++) {
 			left_deps.add(new ArrayList<TuebaTerminal>());
 			right_deps.add(new ArrayList<TuebaTerminal>());
+			right_siblings.add(new ArrayList<TuebaTerminal>());
+			left_siblings.add(new ArrayList<TuebaTerminal>());
 		}
 		for (TuebaTerminal term: terms) {
 			if (term.getSyn_parent() != null) {
 				TuebaTerminal parent = (TuebaTerminal) term.getSyn_parent();
 				if (parent.getStart() < term.getStart()) {
-					left_deps.get(parent.getStart() - offset).add(term);
+					// to the RIGHT of the parent
+					List<TuebaTerminal> ldeps = left_deps.get(parent.getStart() - offset);
+					List<TuebaTerminal> rdeps = right_deps.get(parent.getStart() - offset);
+					List<TuebaTerminal> lsibs = left_siblings.get(term.getStart() - offset);
+					lsibs.addAll(ldeps);
+					lsibs.add(parent);
+					lsibs.addAll(rdeps);
+					for (TuebaTerminal lsib: ldeps) {
+						right_siblings.get(lsib.getStart()-offset).add(term);
+					}
+					rdeps.add(term);
 				} else {
-					right_deps.get(parent.getStart() - offset).add(term);
+					// to the LEFT of the parent
+					List<TuebaTerminal> ldeps = left_deps.get(parent.getStart() - offset);
+					List<TuebaTerminal> lsibs = left_siblings.get(term.getStart() - offset);
+					lsibs.addAll(ldeps);
+					for (TuebaTerminal lsib: ldeps) {
+						right_siblings.get(lsib.getStart()-offset).add(term);
+					}
+					ldeps.add(term);
 				}
+			} else {
+				List<TuebaTerminal> root_deps = right_deps.get(terms.size());
+				left_siblings.get(term.getStart() - offset).addAll(root_deps);
+				for (TuebaTerminal lsib: root_deps) {
+					right_siblings.get(lsib.getStart() - offset).add(term);
+				}
+				root_deps.add(term);
 			}
 		}
 		for (int i = 0; i < terms.size(); i++) {
 			Collections.reverse(left_deps.get(i));
+			Collections.reverse(left_siblings.get(i));
 		}
 	}
 
@@ -64,26 +98,25 @@ public class DepToConst implements Annotator {
 			List<TuebaTerminal> terms = t.getTerminals();
 			List<List<TuebaTerminal>> left_chlds = new ArrayList<List<TuebaTerminal>>();
 			List<List<TuebaTerminal>> right_chlds = new ArrayList<List<TuebaTerminal>>();
+			List<List<TuebaTerminal>> left_siblings = new ArrayList<List<TuebaTerminal>>();
+			List<List<TuebaTerminal>> right_siblings = new ArrayList<List<TuebaTerminal>>();
 			int offset = terms.get(0).getStart();
-			extractDepChildren(terms, left_chlds, right_chlds);
+			extractDepChildren(terms, left_chlds, right_chlds,
+					left_siblings, right_siblings);
 			for (TuebaTerminal n: terms) {
 				// make nodes
-				// TODO feature extraction for node labeling
-				List<TuebaTerminal> lchlds = left_chlds.get(n.getStart()-offset);
-				List<TuebaTerminal> rchlds = right_chlds.get(n.getStart()-offset);
-				List<TuebaTerminal> lsibs;
-				List<TuebaTerminal> rsibs;
+				int node_pos = n.getStart() - offset;
+				List<TuebaTerminal> lchlds = left_chlds.get(node_pos);
+				List<TuebaTerminal> rchlds = right_chlds.get(node_pos);
+				List<TuebaTerminal> lsibs = left_siblings.get(node_pos);
+				List<TuebaTerminal> rsibs = right_siblings.get(node_pos);
 				TuebaTerminal p = (TuebaTerminal)n.getSyn_parent();
-				if (p == null) {
-					lsibs = rsibs = EMPTY_LIST;
-				} else {
-				lsibs = left_chlds.get(p.getStart()-offset);
-				rsibs = right_chlds.get(p.getStart()-offset);
-				}
 				String[] feats = get_features(n,p,lchlds,rchlds,lsibs,rsibs);
+				System.err.println(Arrays.asList(feats));
 				String node_label = classify_nodelabel(feats);
+				System.err.println(node_label);
 				TuebaNodeMarkable m = new TuebaNodeMarkable();
-				m.setCat("X");
+				m.setCat(node_label);
 				m.setChildren(new ArrayList<NamedObject>());
 				nodes.add(m);
 			}
@@ -112,13 +145,34 @@ public class DepToConst implements Annotator {
 	}
 
 	private String classify_nodelabel(String[] feats) {
-		// TODO actually use a WEKA classifier
-		return "X";
+		Instance inst = new Instance(dataset.numAttributes());
+		inst.setDataset(dataset);
+		for (int i=0; i<feats.length; i++) {
+			try {
+				inst.setValue(i, feats[i]);
+			} catch (IllegalArgumentException ex) {
+				System.err.println(
+					String.format("Value %s not defined for attribute %s",
+							feats[i], dataset.attribute(i).name()));
+				return "X";
+			}
+		}
+		try {
+			double result = classifier.classifyInstance(inst);
+			Attribute result_att = dataset.attribute(dataset.numAttributes()-1);
+			return result_att.value((int)result);
+		} catch (Exception e) {
+			throw new RuntimeException("WEKA barfed", e);
+		}
 	}
 
-	private String[] get_features(TuebaTerminal n, TuebaTerminal p,
+	public static String[] get_features(TuebaTerminal n, TuebaTerminal p,
 			List<TuebaTerminal> ldeps, List<TuebaTerminal> rdeps,
 			List<TuebaTerminal> lsibs, List<TuebaTerminal> rsibs) {
+		System.err.println(ldeps);
+		System.err.println(rdeps);
+		System.err.println(lsibs);
+		System.err.println(rsibs);
 		String any_deps = "y";
 		String any_kon = "n";
 		if (ldeps.isEmpty() && rdeps.isEmpty()) {
@@ -135,7 +189,19 @@ public class DepToConst implements Annotator {
 				}
 			}
 		}
+		String p_cat, p_ccat;
+		if (p==null) {
+			p_cat = "ROOT";
+			p_ccat = "ROOT";
+		} else {
+			p_cat = p.getCat();
+			p_ccat = coarse_cat(p_cat);
+		}
 		return new String[]{
+				n.getCat(),
+				coarse_cat(n.getCat()),
+				p_cat,
+				p_ccat,
 				any_deps, any_kon,
 				get_attr_idx(lsibs, 0, TuebaTerminalSchema.IDX_cat),
 				get_attr_idx(rsibs, 0, TuebaTerminalSchema.IDX_cat),
@@ -144,12 +210,74 @@ public class DepToConst implements Annotator {
 		};
 	}
 
-	private String get_attr_idx(List<TuebaTerminal> lst, int i, int idxCat) {
+	private static String coarse_cat(String cat) {
+		// returns the coarse category
+		//TODO make some language-independent mechanism for tagset mapping
+		char c1 = cat.charAt(0);
+		if (c1 == 'N') return "N";
+		if (c1 == 'V') {
+			if (cat.endsWith("FIN") || cat.endsWith("IMP")) {
+				return "Vfin";
+			} else {
+				return "V";
+			}
+		}
+		if (cat.startsWith("ADJ")) {
+			return "A";
+		} else if (cat.matches("PPER|PDS|PWS|PRF")) {
+			return "PRO";
+		} else if (cat.matches("ART|PIAT|PDAT|PPOSAT")) {
+			return "DET";
+		} else if (cat.startsWith("APP")) {
+			return "ADP";
+		}
+		return cat;
+	}
+
+	private static String get_attr_idx(List<TuebaTerminal> lst, int i, int idxCat) {
 		if (lst.size() <= i || i < 0) {
 			return "_";
 		} else {
 			return (lst.get(i).getSlot(idxCat)).toString();
 		}
 	}
-
+	
+	public static void main(String[] argv) {
+		try {
+			TuebaDocument doc = TuebaDocument.loadDocument(argv[0]);
+			List<SentenceTree> trees = SentenceTree.getTrees(doc);
+			for (SentenceTree t: trees) {
+				List<TuebaTerminal> terms = t.getTerminals();
+				List<List<TuebaTerminal>> left_chlds = new ArrayList<List<TuebaTerminal>>();
+				List<List<TuebaTerminal>> right_chlds = new ArrayList<List<TuebaTerminal>>();
+				List<List<TuebaTerminal>> left_siblings = new ArrayList<List<TuebaTerminal>>();
+				List<List<TuebaTerminal>> right_siblings = new ArrayList<List<TuebaTerminal>>();
+				extractDepChildren(terms, left_chlds, right_chlds,
+						left_siblings, right_siblings);
+				for (int node_pos = 0; node_pos < terms.size(); node_pos++) {
+					TuebaTerminal n = terms.get(node_pos);
+					List<TuebaTerminal> lchlds = left_chlds.get(node_pos);
+					List<TuebaTerminal> rchlds = right_chlds.get(node_pos);
+					List<TuebaTerminal> lsibs = left_siblings.get(node_pos);
+					List<TuebaTerminal> rsibs = right_siblings.get(node_pos);
+					TuebaTerminal p = (TuebaTerminal)n.getSyn_parent();
+					String[] feats = get_features(n,p,lchlds,rchlds,lsibs,rsibs);
+					String target;
+					if (n.getParent() == null) {
+						target = "_";
+					} else {
+						if (n.getSlotByName("head") == p.getSlotByName("head")) {
+							// TODO perform head projection
+							target = p.getCat();
+						} else {
+							target = "_";
+						}
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+	}
 }

@@ -27,15 +27,19 @@
 		<dependency org="commons-cli" name="commons-cli" rev="1.2" />
 		<dependency org="dk.brics" name="automaton" rev="1.11" />
 		<dependency org="org.incava" name="java-diff" rev="1.1" />
-		<dependency org="org.codehaus.jackson" name="jackson-core-asl"
-			rev="1.9.13" />
-		<dependency org="org.codehaus.jackson" name="jackson-mapper-asl"
-			rev="1.9.13" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-core"
+			rev="2.4.4" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-databind"
+			rev="2.4.4" />
+		<dependency org="com.fasterxml.jackson.core" name="jackson-annotations"
+			rev="2.4.4" />
+		<dependency org="com.fasterxml.jackson.dataformat" name="jackson-dataformat-yaml"
+			rev="2.4.4" />
 		<dependency org="org.apache.ant" name="ant" rev="1.9.4" />
 		<dependency org="edu.berkeley.nlp" name="berkeleyparser"
 			rev="r32" />
 		<dependency org="nz.ac.waikato.cms.weka" name="weka-stable"
 			rev="3.6.11" />
-       <dependency org="de.versley" name="exportxml" rev="1.0" />
+		<dependency org="de.versley" name="exportxml" rev="1.0.1" /> 
 	</dependencies>
 </ivy-module> 
