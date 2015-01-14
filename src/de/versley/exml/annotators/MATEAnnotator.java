@@ -26,7 +26,6 @@ public class MATEAnnotator implements Annotator {
 	}
 	
 	public void annotate(TuebaDocument doc) {
-		SentenceData09 data = new SentenceData09();
 		for (SentenceTree tree: SentenceTree.getTrees(doc)) {
 			List<String> tokens = new ArrayList<String>();
 			List<TuebaTerminal> terms = tree.getTerminals();
@@ -34,6 +33,7 @@ public class MATEAnnotator implements Annotator {
 			for (TuebaTerminal tok: tree.getTerminals()) {
 				tokens.add(tok.getWord());
 			}
+			SentenceData09 data = new SentenceData09();
 			data.init(tokens.toArray(new String[tokens.size()]));
 			data = _lemmatizer.apply(data);
 			_parser.apply(data);
@@ -43,7 +43,7 @@ public class MATEAnnotator implements Annotator {
 				tok.setCat(data.ppos[k+1]);
 				tok.setMorph(data.pfeats[k+1]);
 				tok.setSyn_label(data.plabels[k+1]);
-				if (data.pheads[k+1] == 0) {
+				if (data.pheads[k+1] == 0 || data.pheads[k+1] == -1) {
 					tok.setSyn_parent(null);
 				} else {
 					tok.setSyn_parent(terms.get(data.pheads[k+1]-1));

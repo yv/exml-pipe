@@ -40,6 +40,6 @@
 			rev="r32" />
 		<dependency org="nz.ac.waikato.cms.weka" name="weka-stable"
 			rev="3.6.11" />
-		<dependency org="de.versley" name="exportxml" rev="1.0.1" /> 
+		<dependency org="de.versley" name="exportxml" rev="1.0.2" /> 
 	</dependencies>
 </ivy-module> 
