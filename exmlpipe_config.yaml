@@ -4,13 +4,13 @@ default_pipeline: "mate"
 modelDir: "/home/yannick/data/pynlp/data"
 pipelines:
   de.mate:
-  - !<de.versley.exml.annotators.MATEConfig>
+  - !<de.versley.exml.annotators.MATEAnnotator>
     lemma_fname: "mate_models/lemma-ger-3.6.model"
     parser_fname: "mate_models/pet-ger-S2a-40-0.25-0.1-2-2-ht4-hm4-kk0"
-  - !<de.versley.exml.annotators.DepToConstConfig>
+  - !<de.versley.exml.annotators.DepToConst>
     modelName: mate_models/deptoconst-tiger-small.obj.model
   de.pcfgla:
-  - !<de.versley.exml.annotators.BPConfig>
+  - !<de.versley.exml.annotators.BPAnnotator>
     modelName: "berkeley/r6_train2.gr"
-    xform:
+    transforms:
     - !<de.versley.exml.treetransform.NodeToFunction> {}

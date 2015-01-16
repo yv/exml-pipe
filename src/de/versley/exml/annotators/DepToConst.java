@@ -2,7 +2,6 @@ package de.versley.exml.annotators;
 
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import weka.classifiers.Classifier;
 import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
+import de.versley.exml.config.FileReference;
 import de.versley.exml.pipe.SentenceTree;
 import edu.berkeley.nlp.util.Lists;
 import exml.objects.NamedObject;
@@ -22,14 +22,22 @@ import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
 import exml.tueba.TuebaTerminalSchema;
 
-public class DepToConst implements Annotator {
+public class DepToConst extends SimpleAnnotator {
 	final static List<TuebaTerminal> EMPTY_LIST = Lists.fromArray(new TuebaTerminal[]{});
-    private final Classifier classifier;
-    private final Instances dataset;
+	public FileReference modelName;
+    private Classifier classifier;
+    private Instances dataset;
 	
 	public DepToConst(String filename) {
+		modelName = new FileReference(filename);
+	}
+	
+	public DepToConst() {
+	}
+	
+	public void loadModels() {
 		try {
-			ObjectInputStream f = new ObjectInputStream(new FileInputStream(filename));
+			ObjectInputStream f = new ObjectInputStream(new FileInputStream(modelName.toFile()));
 			classifier = (Classifier) f.readObject();
 			dataset = (Instances) f.readObject();
 			f.close();

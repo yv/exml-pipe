@@ -8,21 +8,30 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.versley.exml.config.FileReference;
 import de.versley.exml.pipe.SentenceTree;
 import exml.tueba.TuebaDocument;
 import exml.tueba.TuebaTerminal;
 
-public class MATEAnnotator implements Annotator {
-	Lemmatizer _lemmatizer;
-	Parser _parser;
+public class MATEAnnotator extends SimpleAnnotator {
+	protected Lemmatizer _lemmatizer;
+	protected Parser _parser;
+	public FileReference lemma_fname;
+	public FileReference parser_fname;
+
 	public MATEAnnotator(String dirname) {
-		_lemmatizer = new Lemmatizer(dirname + "lemma-ger-3.6.model");
-		_parser = new Parser(dirname + "pet-ger-S2a-40-0.25-0.1-2-2-ht4-hm4-kk0");
+		lemma_fname = new FileReference(dirname + "lemma-ger-3.6.model");
+		parser_fname = new FileReference(dirname + "pet-ger-S2a-40-0.25-0.1-2-2-ht4-hm4-kk0");
 	}
 	
-	public MATEAnnotator(File modelDir, MATEConfig conf) {
-		_lemmatizer = new Lemmatizer(new File(modelDir, conf.lemma_fname).toString());
-		_parser = new Parser(new File(modelDir, conf.parser_fname).toString());
+	public MATEAnnotator() {
+	}
+	
+	public void loadModels() {
+		if (_lemmatizer == null) {
+			_lemmatizer = new Lemmatizer(lemma_fname.toPath());
+			_parser = new Parser(parser_fname.toPath());
+		}
 	}
 	
 	public void annotate(TuebaDocument doc) {

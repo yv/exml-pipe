@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.versley.exml.config.FileReference;
 import de.versley.exml.pipe.SentenceTree;
 import de.versley.exml.treetransform.TreeTransformer;
 import edu.berkeley.nlp.PCFGLA.CoarseToFineMaxRuleParser;
@@ -18,35 +19,32 @@ import exml.tueba.TuebaDocument;
 import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
 
-public class BPAnnotator implements Annotator {
+public class BPAnnotator extends SimpleAnnotator {
 	protected Grammar gram;
 	protected SophisticatedLexicon lex;
 	protected CoarseToFineMaxRuleParser parser;
 	
-	List<TreeTransformer> transforms; 
-	public BPAnnotator(String modelName) {
-		ParserData pdata = ParserData.Load(modelName);
-		gram = pdata.getGrammar();
-		lex = (SophisticatedLexicon)pdata.getLexicon();
-		Numberer.setNumberers(pdata.getNumbs());
-		parser = new CoarseToFineMaxRuleParser(gram, lex,
-				1.0, -1,
-				false, false, false, true, false,
-				true, true);
+	public FileReference modelName;
+	public List<TreeTransformer> transforms; 
+	public BPAnnotator(String model) {
+		modelName = new FileReference(model);
 		transforms = new ArrayList<TreeTransformer>();
 	}
 	
-	public BPAnnotator(File modelDir, BPConfig config) {
-		ParserData pdata = ParserData.Load(new File(modelDir, config.modelName).toString());
-		gram = pdata.getGrammar();
-		lex = (SophisticatedLexicon)pdata.getLexicon();
-		Numberer.setNumberers(pdata.getNumbs());
-		parser = new CoarseToFineMaxRuleParser(gram, lex,
-				1.0, -1,
-				false, false, false, true, false,
-				true, true);
-		transforms = config.xform;
-		
+	public BPAnnotator() {
+	}
+	
+	public void loadModels() {
+		if (gram == null) {
+			ParserData pdata = ParserData.Load(modelName.toPath());
+			gram = pdata.getGrammar();
+			lex = (SophisticatedLexicon)pdata.getLexicon();
+			Numberer.setNumberers(pdata.getNumbs());
+			parser = new CoarseToFineMaxRuleParser(gram, lex,
+					1.0, -1,
+					false, false, false, true, false,
+					true, true);
+		}
 	}
 	
 	public void add_transform(TreeTransformer xform) {

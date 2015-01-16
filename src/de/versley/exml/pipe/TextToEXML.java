@@ -16,7 +16,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
 import de.versley.exml.annotators.Annotator;
-import de.versley.exml.annotators.GlobalConfig;
+import de.versley.exml.config.GlobalConfig;
 import exml.io.DocumentWriter;
 import exml.tueba.TuebaDocument;
 
