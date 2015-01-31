@@ -73,16 +73,17 @@ public class TextToEXML {
 		//annotators.add(bp_ann);
 		try {
 			ExmlDocBuilder db = new ExmlDocBuilder(conf.language);
-			db.addText(readFile(args[0]));
+			db.addText(readFile((String) cmd.getArgList().get(0)));
 			TuebaDocument doc = db.getDocument();
 			for (Annotator ann: annotators) {
 				ann.annotate(doc);
 			}
 			OutputStream os;
-			if (args.length > 1) {
-				os = new FileOutputStream(args[1]);
+			if (cmd.getArgList().size() > 1) {
+				os = new FileOutputStream((String) cmd.getArgList().get(1));
 			} else {
 				os = System.out;
+				System.err.println("writing to stdout");
 			}
 			DocumentWriter.writeDocument(doc, os);
 		} catch (Exception e) {

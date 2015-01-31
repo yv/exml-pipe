@@ -2,6 +2,8 @@ package de.versley.exml.pipe;
 
 import webcorp.tokens.DFATokenizer;
 import webcorp.tokens.Token;
+import webcorp.tokens.TokenizerInterface;
+import de.versley.exml.annotators.CoreNLPTokenizer;
 import exml.MarkableLevel;
 import exml.MissingObjectException;
 import exml.tueba.TuebaDocument;
@@ -16,7 +18,7 @@ import exml.tueba.TuebaTerminal;
  */
 public class ExmlDocBuilder {
 	private TuebaDocument _doc;
-	private DFATokenizer _tok;
+	private TokenizerInterface _tok;
 	private String _lang;
 	private int _sent_no = 1;
 	
@@ -29,15 +31,19 @@ public class ExmlDocBuilder {
 		return _doc;
 	}
 	
-	protected DFATokenizer getTokenizer() {
+	protected TokenizerInterface getTokenizer() {
 		if (_tok == null) {
-			_tok = new DFATokenizer(_lang);
+			if ("de".equals(_lang)) {
+				_tok = new DFATokenizer(_lang);
+			} else if ("en".equals(_lang)) {
+				_tok = new CoreNLPTokenizer();
+			}
 		}
 		return _tok;
 	}
 	
 	public int addText(String text) {
-		DFATokenizer tokenizer = getTokenizer();
+		TokenizerInterface tokenizer = getTokenizer();
 		TuebaDocument doc = _doc;
 		MarkableLevel<TuebaSentenceMarkable> sentLevel = doc.sentences;
 		int w_no = 1;

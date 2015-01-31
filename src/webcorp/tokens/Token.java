@@ -6,6 +6,7 @@ public final class Token {
 	public int flags; // 1 = at start of block; 2 = abbrev/ordinal; 4 = at sentence boundary
 	public String value;
 	public String wsp_after;
+	public static final int SENT_START = 4;
 	
 	public boolean isSentStart() {
 		return (flags&4)==4;

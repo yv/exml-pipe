@@ -9,8 +9,15 @@ pipelines:
     parser_fname: "mate_models/pet-ger-S2a-40-0.25-0.1-2-2-ht4-hm4-kk0"
   - !<de.versley.exml.annotators.DepToConst>
     modelName: mate_models/deptoconst-tiger-small.obj.model
+  en.mate: # does not seem to work, since it's missing the lemmatizer
+  - !<de.versley.exml.annotators.MATEAnnotator>
+    lemma_fname: null
+    parser_fname: "mate_models/per-eng-S2b-40.mdl"
   de.pcfgla:
   - !<de.versley.exml.annotators.BPAnnotator>
     modelName: "berkeley/r6_train2.gr"
     transforms:
     - !<de.versley.exml.treetransform.NodeToFunction> {}
+  en.corenlp:
+  - !<de.versley.exml.annotators.CoreNLPAnnotator>
+    annotators: [pos, lemma, ner, parse, dcoref]

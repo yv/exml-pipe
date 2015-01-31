@@ -14,13 +14,13 @@ import weka.core.Attribute;
 import weka.core.Instance;
 import weka.core.Instances;
 import de.versley.exml.config.FileReference;
-import de.versley.exml.pipe.SentenceTree;
 import edu.berkeley.nlp.util.Lists;
 import exml.objects.NamedObject;
 import exml.tueba.TuebaDocument;
 import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
 import exml.tueba.TuebaTerminalSchema;
+import exml.tueba.util.SentenceTree;
 
 public class DepToConst extends SimpleAnnotator {
 	final static List<TuebaTerminal> EMPTY_LIST = Lists.fromArray(new TuebaTerminal[]{});
@@ -174,7 +174,8 @@ public class DepToConst extends SimpleAnnotator {
 		}
 	}
 
-	public static String[] get_features(TuebaTerminal n, TuebaTerminal p,
+	public static String[] get_features(
+			TuebaTerminal n, TuebaTerminal p,
 			List<TuebaTerminal> ldeps, List<TuebaTerminal> rdeps,
 			List<TuebaTerminal> lsibs, List<TuebaTerminal> rsibs) {
 		System.err.println(ldeps);
@@ -205,16 +206,18 @@ public class DepToConst extends SimpleAnnotator {
 			p_cat = p.getCat();
 			p_ccat = coarse_cat(p_cat);
 		}
+		exml.objects.Attribute<TuebaTerminal, String> att_word = 
+				(exml.objects.Attribute<TuebaTerminal,String>) TuebaTerminalSchema.instance.attrs.get("word");
 		return new String[]{
 				n.getCat(),
 				coarse_cat(n.getCat()),
 				p_cat,
 				p_ccat,
 				any_deps, any_kon,
-				get_attr_idx(lsibs, 0, TuebaTerminalSchema.IDX_cat),
-				get_attr_idx(rsibs, 0, TuebaTerminalSchema.IDX_cat),
-				get_attr_idx(ldeps, 0, TuebaTerminalSchema.IDX_cat),
-				get_attr_idx(rdeps, 0, TuebaTerminalSchema.IDX_cat)
+				get_attr_idx(lsibs, 0, att_word),
+				get_attr_idx(rsibs, 0, att_word),
+				get_attr_idx(ldeps, 0, att_word),
+				get_attr_idx(rdeps, 0, att_word)
 		};
 	}
 
@@ -242,11 +245,11 @@ public class DepToConst extends SimpleAnnotator {
 		return cat;
 	}
 
-	private static String get_attr_idx(List<TuebaTerminal> lst, int i, int idxCat) {
+	private static String get_attr_idx(List<TuebaTerminal> lst, int i, exml.objects.Attribute<TuebaTerminal,String> idxCat) {
 		if (lst.size() <= i || i < 0) {
 			return "_";
 		} else {
-			return (lst.get(i).getSlot(idxCat)).toString();
+			return idxCat.accessor.get(lst.get(i));
 		}
 	}
 	

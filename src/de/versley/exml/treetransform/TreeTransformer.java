@@ -2,7 +2,7 @@ package de.versley.exml.treetransform;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import de.versley.exml.pipe.SentenceTree;
+import exml.tueba.util.SentenceTree;
 
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY,
    property="@class")

@@ -1,13 +1,22 @@
 package de.versley.exml.config;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 
+/**
+ * container for a relative reference that would allow
+ * to incorporate more complex file search behaviour
+ * @author yannick
+ *
+ */
 public class FileReference {
 	public String relPath;
 	protected GlobalConfig conf;
@@ -33,6 +42,10 @@ public class FileReference {
 		return toFile().toString();
 	}
 	
+	public InputStream toStream() throws FileNotFoundException {
+		return new FileInputStream(toFile());
+	}
+	
 	public static class Deserializer extends JsonDeserializer<FileReference> {
 		private GlobalConfig _conf;
 		
@@ -49,6 +62,8 @@ public class FileReference {
 			if (t == JsonToken.VALUE_STRING) {
 				String s = jp.getText().trim();
 				return new FileReference(s, _conf);
+			} else if (t == JsonToken.VALUE_NULL) {
+				return null;
 			}
 			throw ctxt.mappingException(handledType());
 		}

@@ -1,11 +1,9 @@
 package de.versley.exml.annotators;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.versley.exml.config.FileReference;
-import de.versley.exml.pipe.SentenceTree;
 import de.versley.exml.treetransform.TreeTransformer;
 import edu.berkeley.nlp.PCFGLA.CoarseToFineMaxRuleParser;
 import edu.berkeley.nlp.PCFGLA.Grammar;
@@ -18,6 +16,7 @@ import exml.objects.NamedObject;
 import exml.tueba.TuebaDocument;
 import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
+import exml.tueba.util.SentenceTree;
 
 public class BPAnnotator extends SimpleAnnotator {
 	protected Grammar gram;

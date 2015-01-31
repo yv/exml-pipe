@@ -1,9 +1,9 @@
 package de.versley.exml.treetransform;
 
-import de.versley.exml.pipe.SentenceTree;
 import exml.objects.NamedObject;
 import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
+import exml.tueba.util.SentenceTree;
 
 /**
  * Assigns heads to constituents based on the dependency annotation

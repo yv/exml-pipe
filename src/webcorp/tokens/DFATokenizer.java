@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 import dk.brics.automaton.AutomatonMatcher;
 import dk.brics.automaton.RunAutomaton;
 
-public class DFATokenizer {
+public class DFATokenizer implements TokenizerInterface {
 	public final RunAutomaton _token_dfa;
 	public final RunAutomaton _num_dfa;
 	public final RunAutomaton _ord_noun_dfa;

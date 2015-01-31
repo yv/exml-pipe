@@ -1,7 +1,7 @@
 <project xmlns:ivy="antlib:org.apache.ivy.ant" name="exmlpipe" default="dist">
     <ivy:settings file="ivysettings.xml"/>
     <target name="resolve" description="--> retrieve dependencies with ivy">
-        <ivy:retrieve pattern="lib/[artifact]-[revision]-[type].[ext]" />
+        <ivy:retrieve pattern="lib/[artifact]-[revision](-[classifier]).[ext]" />
         <ivy:cachepath pathid="ivy.path"/>
     </target>
     <target name="init">

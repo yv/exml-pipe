@@ -11,6 +11,7 @@
 	language governing permissions and limitations under the License. -->
 <ivy-module version="2.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:m="http://ant.apache.org/ivy/maven"
 	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
 	<info organisation="de.versley" module="exml-pipe" status="integration"
 		revision="2.0hd">
@@ -40,6 +41,12 @@
 			rev="r32" />
 		<dependency org="nz.ac.waikato.cms.weka" name="weka-stable"
 			rev="3.6.11" />
-		<dependency org="de.versley" name="exportxml" rev="1.0.2" /> 
+		<dependency org="de.versley" name="exportxml" rev="1.0.5" /> 
+		<dependency org="edu.stanford.nlp" name="stanford-corenlp" rev="3.4.1" transitive="false" changing="true"/>
+        <dependency org="edu.stanford.nlp" name="stanford-corenlp" rev="3.4.1" transitive="false" changing="true">
+          <artifact name="stanford-corenlp" type="jar"/>
+          <artifact name="stanford-corenlp" type="jar" m:classifier="models"/>
+        </dependency>
+		
 	</dependencies>
 </ivy-module> 

@@ -1,9 +1,9 @@
 package de.versley.exml.treetransform;
 
-import de.versley.exml.pipe.SentenceTree;
 import exml.objects.NamedObject;
 import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
+import exml.tueba.util.SentenceTree;
 
 public class NodeToFunction implements TreeTransformer {
 
@@ -40,7 +40,7 @@ public class NodeToFunction implements TreeTransformer {
 			String nfunc = s.substring(posn+1);
 			nfunc = nfunc.replace("_", "-");
 			n.setCat(ncat);
-			n.setFunc(nfunc);
+			n.setEdge_label(nfunc);
 		}
 		for (NamedObject chld: n.getChildren()) {
 			try {
