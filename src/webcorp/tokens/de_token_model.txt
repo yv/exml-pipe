@@ -19,7 +19,7 @@ Mo|Di|Mi|Do|Fr|Sa
 (Dr|Dipl)\.?-(Ing|Inf)
 .+/[mM]in|Art|Abs|Anm|AZ|Az|B/s|Bd|Ber|[Bb]etr|BGBl|bzw
 Chr|Co|Corp|Dipl|Dr|Engl|[Hh]rsg|II|Inc|Jh(dt)?|[Jj]r|Ltd|Kl|Max
-Mill|Min|Mio|Mr|Mrd|Mw[Ss]t|Nr|Par|Pf|[Pp]hil|Pol|Proc|Prof|Red
+Mill|Min|Mio|Mr|Mrd|Mw[Ss]t|Nr|Par|Pf|(Pf|M)gff?|[Pp]hil|Pol|Proc|Prof|Red
 [Ss]ch|St|Std|.*Str|[Tt]el|[Tt]h|[Tt]heol|Ver|[Vv]gl|Vol|Zi|[Zz]it
 [A-ZÄÖÜ]\\.-[A-ZÄÖÜ]|al|bspw?|bzw|ca|co|div|entspr|etc|evtl|excl
 exkl|<Nd>*ff|ggf|incl|inkl|jr|lt|max|min|mind|op|resp|soc|sog|usf|usw
