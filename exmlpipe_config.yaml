@@ -21,3 +21,14 @@ pipelines:
   en.corenlp:
   - !<de.versley.exml.annotators.CoreNLPAnnotator>
     annotators: [pos, lemma, ner, parse, dcoref]
+  de.corenlp:
+  - !<de.versley.exml.annotators.MATEAnnotator>
+    lemma_fname: "mate_models/lemma-ger-3.6.model"
+    parser_fname: "mate_models/pet-ger-S2a-40-0.25-0.1-2-2-ht4-hm4-kk0"
+  - !<de.versley.exml.annotators.CoreNLPAnnotator>
+    annotators: [ner]
+    nerModel: stanford/hgc_175m_600.crf.ser.gz
+    properties:
+      ner.applyNumericClassifiers: false
+      ner.useSUTime: false
+      

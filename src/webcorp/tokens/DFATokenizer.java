@@ -206,7 +206,7 @@ public class DFATokenizer implements TokenizerInterface {
 	}
 
 	static private String[] test_tokens = { "(Musik-)Geschichte",
-			"Anti-Abtreibungs-Gesetz", "öffentlich-rechtlichen" };
+			"Anti-Abtreibungs-Gesetz", "öffentlich-rechtlichen", "§218-Gesetz" };
 
 	public void run_test() {
 		for (String s : test_tokens) {
@@ -228,7 +228,7 @@ public class DFATokenizer implements TokenizerInterface {
 		tok.run_test();
 		List<Token> toks = tok
 				.tokenize(
-						"Peter: Nach dem 12. 1000-Meter-Lauf, sagte die 16jährige, wäre alles- (naja, fast alles) mit dem \"Grenzenlos\"-Modell OK gewesen, mit ca. 12 Metern/Sek. Wissen's, das ist Charly's Traum, und Jonas'...",
+						"Peter: Nach §218 und dem 12. 1000-Meter-Lauf, sagte die 16jährige, wäre alles- (naja, fast alles) mit dem \"Grenzenlos\"-Modell OK gewesen, mit ca. 12 Metern/Sek. Wissen's, das ist Charly's Traum, und Jonas'...",
 						0);
 		for (Token s : toks) {
 			System.out.println(s.value);

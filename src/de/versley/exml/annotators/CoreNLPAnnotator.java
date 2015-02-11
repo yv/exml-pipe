@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import de.versley.exml.config.FileReference;
 import de.versley.exml.schemas.CorefMarkable;
 import edu.stanford.nlp.dcoref.CorefChain;
 import edu.stanford.nlp.dcoref.CorefChain.CorefMention;
@@ -26,12 +27,18 @@ import exml.objects.BeanAccessors;
 import exml.objects.NamedObject;
 import exml.objects.ObjectSchema;
 import exml.tueba.TuebaDocument;
+import exml.tueba.TuebaNEMarkable;
 import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
 import exml.tueba.util.SentenceTree;
 
 public class CoreNLPAnnotator implements Annotator {
 	public List<String> annotators;
+	public Map<String, String> properties;
+	public FileReference posModel;
+	public FileReference nerModel;
+	public FileReference parserModel;
+
 	
 	protected StanfordCoreNLP pipeline = null;
 
@@ -71,6 +78,9 @@ public class CoreNLPAnnotator implements Annotator {
 			for (TuebaTerminal tok: t.getTerminals()) {
 				CoreLabel tt = (CoreLabel) factory.newLabel(tok.getWord());
 				tt.setWord(tok.getWord());
+				if (!annotators.contains("pos")) {
+					tt.set(CoreAnnotations.PartOfSpeechAnnotation.class, tok.getCat());
+				}
 				tokens.add(tt);
 			}
 			sentence.set(CoreAnnotations.TokensAnnotation.class, tokens);
@@ -78,55 +88,107 @@ public class CoreNLPAnnotator implements Annotator {
 		}
 		annotation.set(CoreAnnotations.SentencesAnnotation.class, sentences);
 		pipeline.annotate(annotation);
+		boolean want_pos = annotators.contains("pos");
+		boolean want_lemma = annotators.contains("lemma");
 		List<SentenceTree> sent_trees = SentenceTree.getTrees(doc);
 		int i = 0;
 		for (SentenceTree t: sent_trees) {
 			CoreMap sentence = sentences.get(i);
 			List<CoreLabel> tokens = sentence.get(CoreAnnotations.TokensAnnotation.class);
 			List<TuebaTerminal> exml_tokens = t.getTerminals();
+			// POS, Lemma
 			for (int j = 0; j< exml_tokens.size(); j++) {
 				TuebaTerminal exml_tok = exml_tokens.get(j);
 				CoreLabel std_tok = tokens.get(j);
-				exml_tok.setCat(std_tok.getString(CoreAnnotations.PartOfSpeechAnnotation.class));
-				exml_tok.setLemma(std_tok.getString(CoreAnnotations.LemmaAnnotation.class));
+				if (want_pos) {
+					exml_tok.setCat(std_tok.getString(CoreAnnotations.PartOfSpeechAnnotation.class));
+				}
+				if (want_lemma) {
+					exml_tok.setLemma(std_tok.getString(CoreAnnotations.LemmaAnnotation.class));
+				}
+			}
+			// NER
+			List<TuebaNEMarkable> ne_list = new ArrayList<TuebaNEMarkable>();
+			TuebaNEMarkable last_ne = null;
+			for (int j = 0; j< exml_tokens.size(); j++) {
+				TuebaTerminal exml_tok = exml_tokens.get(j);
+				CoreLabel std_tok = tokens.get(j);
+				// This should work for raw class labels (English) as well
+				// as for BIO/IOB/BILOU
+				String raw_label = std_tok.getString(CoreAnnotations.NamedEntityTagAnnotation.class);
+				String ne_label = null;
+				if (raw_label!=null) ne_label = raw_label.replace("^[BILU]-", "");
+				System.err.format("%s: %s => %s", exml_tok.getWord(), raw_label, ne_label);
+				if (ne_label != null && !"O".equals(raw_label)) {
+					if (last_ne != null && (last_ne.getKind().equals(ne_label) &&
+							!raw_label.startsWith("B-"))) {
+						last_ne.setEnd(exml_tok.getStart()+1);
+					} else {
+						if (last_ne != null) {
+							ne_list.add(last_ne);
+						}
+						last_ne = new TuebaNEMarkable();
+						last_ne.setStart(exml_tok.getStart());
+						last_ne.setKind(ne_label);
+					}
+				} else {
+					// O or no NE label
+					if (last_ne != null) {
+						ne_list.add(last_ne);
+						last_ne = null;
+					}
+				}
+			}
+			if (last_ne != null) {
+				ne_list.add(last_ne);
+				last_ne = null;
+			}
+			MarkableLevel<TuebaNEMarkable> level = doc.nes;
+			for (TuebaNEMarkable ne: ne_list) {
+				level.addMarkable(ne);
 			}
 			// parse tree
-			Tree tree = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-			TuebaNodeMarkable m_root = (TuebaNodeMarkable) stanford2node(tree, exml_tokens, 0);
-			t.getRoots().clear();
-			t.getRoots().addAll(m_root.getChildren());
-			t.reassignParents();
-			t.reassignSpans();
-			t.replaceNodes();
-			SemanticGraph uncollapsedDeps = sentence.get(BasicDependenciesAnnotation.class);
-			for (SemanticGraphEdge e: uncollapsedDeps.edgeListSorted()) {
-				TuebaTerminal n_gov = exml_tokens.get(e.getGovernor().index()-1);
-				TuebaTerminal n_dep = exml_tokens.get(e.getDependent().index()-1);
-				n_dep.setSyn_parent(n_gov);
-				n_dep.setSyn_label(e.getRelation().getShortName());
+			if (annotators.contains("parse")) {
+				Tree tree = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+				TuebaNodeMarkable m_root = (TuebaNodeMarkable) stanford2node(tree, exml_tokens, 0);
+				t.getRoots().clear();
+				t.getRoots().addAll(m_root.getChildren());
+				t.reassignParents();
+				t.reassignSpans();
+				t.replaceNodes();
+				SemanticGraph uncollapsedDeps = sentence.get(BasicDependenciesAnnotation.class);
+				for (SemanticGraphEdge e: uncollapsedDeps.edgeListSorted()) {
+					TuebaTerminal n_gov = exml_tokens.get(e.getGovernor().index()-1);
+					TuebaTerminal n_dep = exml_tokens.get(e.getDependent().index()-1);
+					n_dep.setSyn_parent(n_gov);
+					n_dep.setSyn_label(e.getRelation().getShortName());
+				}
 			}
 			i++;
 		}
-		// TODO transfer NE information
 		// Coreference
-		Map<Integer, CorefChain> corefChains = annotation.get(
-				CorefCoreAnnotations.CorefChainAnnotation.class);
-		ObjectSchema<CorefMarkable> coref_schema = 
-				BeanAccessors.getInstance().schemaForClass(CorefMarkable.class);
-		MarkableLevel<CorefMarkable> coref_level = doc.markableLevelForClass(CorefMarkable.class, "coref");
-		for (Map.Entry<Integer, CorefChain> entry: corefChains.entrySet()) {
-			int chainId = entry.getKey();
-			CorefChain chain = entry.getValue();
-			for (CorefMention m: chain.getMentionsInTextualOrder()) {
-				CorefMarkable mm = coref_level.schema.createMarkable();
-				int sent_offset = sent_trees.get(m.sentNum-1).getTerminals().get(0).getStart();
-				mm.chainId = ""+chainId;
-				mm.setStart(m.startIndex-1+sent_offset);
-				mm.setEnd(m.endIndex-1+sent_offset);
-				mm.setXMLId(String.format("coref_%d", m.mentionID));
-				// System.err.println(m.toString());
-				// System.err.println(mm.getWords(doc));
-				coref_level.addMarkable(mm);
+		if (annotators.contains("dcoref")) {
+			Map<Integer, CorefChain> corefChains = annotation.get(
+					CorefCoreAnnotations.CorefChainAnnotation.class);
+			if (corefChains != null) {
+				ObjectSchema<CorefMarkable> coref_schema = 
+						BeanAccessors.getInstance().schemaForClass(CorefMarkable.class);
+				MarkableLevel<CorefMarkable> coref_level = doc.markableLevelForClass(CorefMarkable.class, "coref");
+				for (Map.Entry<Integer, CorefChain> entry: corefChains.entrySet()) {
+					int chainId = entry.getKey();
+					CorefChain chain = entry.getValue();
+					for (CorefMention m: chain.getMentionsInTextualOrder()) {
+						CorefMarkable mm = coref_schema.createMarkable();
+						int sent_offset = sent_trees.get(m.sentNum-1).getTerminals().get(0).getStart();
+						mm.chainId = ""+chainId;
+						mm.setStart(m.startIndex-1+sent_offset);
+						mm.setEnd(m.endIndex-1+sent_offset);
+						mm.setXMLId(String.format("coref_%d", m.mentionID));
+						// System.err.println(m.toString());
+						// System.err.println(mm.getWords(doc));
+						coref_level.addMarkable(mm);
+					}
+				}
 			}
 		}
 	}
@@ -134,15 +196,26 @@ public class CoreNLPAnnotator implements Annotator {
 	@Override
 	public void loadModels() {
 		Properties props = new Properties();
+		for (String key: properties.keySet()) {
+			String val = properties.get(key);
+			props.setProperty(key, val);
+		}
 		props.setProperty("annotators", StringUtils.join(annotators, ","));
 		props.setProperty("enforceRequirements", "false");
+		if (posModel != null) {
+			props.setProperty("pos.model", posModel.toPath());
+		}
+		if (nerModel != null) {
+			props.setProperty("ner.model", nerModel.toPath());
+		}
+		if (parserModel != null) {
+			props.setProperty("parser.model", parserModel.toPath());
+		}
 		pipeline = new StanfordCoreNLP(props);
 	}
 
 	@Override
 	public void unloadModels() {
-		// TODO Auto-generated method stub
-		
+		pipeline = null;
 	}
-
 }

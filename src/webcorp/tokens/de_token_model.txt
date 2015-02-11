@@ -17,7 +17,7 @@ August|September|Oktober|November|Dezember|[0-9]+
 Mo|Di|Mi|Do|Fr|Sa
 <L>+(str|korr|fg|b[rg])
 (Dr|Dipl)\.?-(Ing|Inf)
-.+/[mM]in|Abs|Anm|AZ|Az|B/s|Bd|Ber|[Bb]etr|BGBl|bzw
+.+/[mM]in|Art|Abs|Anm|AZ|Az|B/s|Bd|Ber|[Bb]etr|BGBl|bzw
 Chr|Co|Corp|Dipl|Dr|Engl|[Hh]rsg|II|Inc|Jh(dt)?|[Jj]r|Ltd|Kl|Max
 Mill|Min|Mio|Mr|Mrd|Mw[Ss]t|Nr|Par|Pf|[Pp]hil|Pol|Proc|Prof|Red
 [Ss]ch|St|Std|.*Str|[Tt]el|[Tt]h|[Tt]heol|Ver|[Vv]gl|Vol|Zi|[Zz]it
@@ -43,7 +43,7 @@ mediantis|debitel|speedlink
 <Nd>+(:<Nd>+)+|0<Nd>{2,}/<Nd>+(-<Nd>+)*|<Nd>{3,}-(<Nd>+-)?(0|<Nd>{3,})|[12]?[0-9][:\.](15|[02-6][05])(,[0-9]{2})?
 >>> XY
 ## U-235, Q2
-<Lu>+-?(<Number>|<Numeric>)|www\\.<L>+\\.<L>{2,4}|http://(<L>|<Nd>|[/%])+
+§|<Lu>+-?(<Number>|<Numeric>)|www\\.<L>+\\.<L>{2,4}|http://(<L>|<Nd>|[/%])+
 
 >*> Token
 <XY>|<Word>|<Number>|<Numeric>|\.{2,}|<P>
