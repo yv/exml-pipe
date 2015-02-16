@@ -7,13 +7,17 @@ import is2.transitionS2a.Parser;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import de.versley.exml.config.FileReference;
 import exml.tueba.TuebaDocument;
 import exml.tueba.TuebaTerminal;
 import exml.tueba.util.SentenceTree;
 
 public class MATEAnnotator extends SimpleAnnotator {
+	@JsonIgnore
 	protected Lemmatizer _lemmatizer;
+	@JsonIgnore
 	protected Parser _parser;
 	public FileReference lemma_fname;
 	public FileReference parser_fname;

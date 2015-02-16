@@ -88,24 +88,53 @@ public class TextToEXML {
 		//BPAnnotator bp_ann = new BPAnnotator("/home/yannick/data/r6_train2.gr");
 		//bp_ann.add_transform(new NodeToFunction());
 		//annotators.add(bp_ann);
-		try {
-			String fname = (String) cmd.getArgList().get(0);
-			TuebaDocument doc = importFile(fname, conf);
+		String fname = (String) cmd.getArgList().get(0);
+		File f_arg = new File(fname);
+		if (f_arg.isDirectory()) {
+			if (cmd.getArgList().size() < 2) {
+				System.err.println("If the first argument is a directory, you need to specify an output directory!");
+				System.exit(1);
+			}
+			for (File f_curr: f_arg.listFiles()) {
+				File f_out = new File((String)cmd.getArgList().get(1), f_curr.getName());
+				if (!f_out.getName().endsWith(".exml.xml")) {
+					String tmp = f_out.toString();
+					tmp=tmp.replaceAll("\\.(txt|html|xml)$", "");
+					f_out = new File(tmp+".exml.xml");
+				}
+				System.err.println("Processing: "+f_out.getName());
+				try {
+					TuebaDocument doc = importFile(f_curr.toString(), conf);
+					for (Annotator ann: annotators) {
+						ann.annotate(doc);
+					}
+					OutputStream os;
+					os = new FileOutputStream(f_out);
+					DocumentWriter.writeDocument(doc, os);
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.exit(1);
+				}
+			}
+		} else {
+			try {
+				TuebaDocument doc = importFile(fname, conf);
 
-			for (Annotator ann: annotators) {
-				ann.annotate(doc);
+				for (Annotator ann: annotators) {
+					ann.annotate(doc);
+				}
+				OutputStream os;
+				if (cmd.getArgList().size() > 1) {
+					os = new FileOutputStream((String) cmd.getArgList().get(1));
+				} else {
+					os = System.out;
+					System.err.println("writing to stdout");
+				}
+				DocumentWriter.writeDocument(doc, os);
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(1);
 			}
-			OutputStream os;
-			if (cmd.getArgList().size() > 1) {
-				os = new FileOutputStream((String) cmd.getArgList().get(1));
-			} else {
-				os = System.out;
-				System.err.println("writing to stdout");
-			}
-			DocumentWriter.writeDocument(doc, os);
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
 		}
 	}
 
