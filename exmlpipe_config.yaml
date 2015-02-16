@@ -1,7 +1,7 @@
 ---
 language: "de"
 default_pipeline: "mate"
-modelDir: "/home/yannick/data/pynlp/data"
+modelDir: "${user.dir}/data/pynlp/data"
 pipelines:
   de.mate:
   - !<de.versley.exml.annotators.MATEAnnotator>
@@ -31,4 +31,9 @@ pipelines:
     properties:
       ner.applyNumericClassifiers: false
       ner.useSUTime: false
+  fr.mate: # does not seem to work, since it's missing the lemmatizer
+  - !<de.versley.exml.annotators.MATEAnnotator>
+    lemma_fname: "mate_models/lemma-fra.mdl"
+    parser_fname: "mate_models/pet-fra-S2apply-40-0.25-0.1-2-2-ht4-hm4-kk0"
+   
       
