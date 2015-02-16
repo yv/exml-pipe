@@ -41,7 +41,7 @@
 			rev="r32" />
 		<dependency org="nz.ac.waikato.cms.weka" name="weka-stable"
 			rev="3.6.11" />
-		<dependency org="de.versley" name="exportxml" rev="1.0.5" /> 
+		<dependency org="de.versley" name="exportxml" rev="1.0.6" /> 
 		<dependency org="edu.stanford.nlp" name="stanford-corenlp" rev="3.4.1" transitive="false" changing="true"/>
         <dependency org="edu.stanford.nlp" name="stanford-corenlp" rev="3.4.1" transitive="false" changing="true">
           <artifact name="stanford-corenlp" type="jar"/>

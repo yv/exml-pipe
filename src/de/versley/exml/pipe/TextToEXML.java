@@ -28,6 +28,18 @@ public class TextToEXML {
 		options.addOption("lang", true, "language (default:de)");
 		options.addOption("pipeline", true, "pipeline (default: mate)");
 	}
+	
+	public static TuebaDocument importFile(String fname, GlobalConfig conf) throws IOException {
+		if (fname.endsWith(".txt")) {
+			ExmlDocBuilder db = new ExmlDocBuilder(conf.language);
+			db.addText(readFile(fname));
+			return db.getDocument();
+		} else if (fname.endsWith(".exml.xml")) {
+			return TuebaDocument.loadDocument(fname);
+		} else {
+			throw new RuntimeException("Don't know how to load file:"+fname);
+		}
+	}
 
     // TODO: pipeline implementation around it
 	// * use input/output directory and globbing
@@ -50,7 +62,7 @@ public class TextToEXML {
 		try {
 			cmd = new PosixParser().parse(options, args);
 		} catch (ParseException ex) {
-			new HelpFormatter().printHelp("TextToEXML", options);
+			new HelpFormatter().printHelp("TextToEXML SourceFile [DestFile]", options);
 			System.exit(1);
 		}
 		if (new File(CONFIG_FNAME).exists()) {
@@ -67,14 +79,19 @@ public class TextToEXML {
 		if (!new File(CONFIG_FNAME).exists()) {
 			conf.saveAs(CONFIG_FNAME);
 		}
+		if (cmd.getArgList().size() < 1) {
+			System.err.println("Not enough arguments.");
+			new HelpFormatter().printHelp("TextToEXML SourceFile [DestFile]", options);
+			System.exit(1);
+		}
 		List<Annotator> annotators = conf.createAnnotators();
 		//BPAnnotator bp_ann = new BPAnnotator("/home/yannick/data/r6_train2.gr");
 		//bp_ann.add_transform(new NodeToFunction());
 		//annotators.add(bp_ann);
 		try {
-			ExmlDocBuilder db = new ExmlDocBuilder(conf.language);
-			db.addText(readFile((String) cmd.getArgList().get(0)));
-			TuebaDocument doc = db.getDocument();
+			String fname = (String) cmd.getArgList().get(0);
+			TuebaDocument doc = importFile(fname, conf);
+
 			for (Annotator ann: annotators) {
 				ann.annotate(doc);
 			}

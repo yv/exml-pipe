@@ -118,7 +118,7 @@ public class CoreNLPAnnotator implements Annotator {
 				String raw_label = std_tok.getString(CoreAnnotations.NamedEntityTagAnnotation.class);
 				String ne_label = null;
 				if (raw_label!=null) ne_label = raw_label.replaceAll("^[BILU]-", "");
-				System.err.format("%s: %s => %s", exml_tok.getWord(), raw_label, ne_label);
+				//System.err.format("%s: %s => %s", exml_tok.getWord(), raw_label, ne_label);
 				if (ne_label != null && !"O".equals(raw_label)) {
 					if (last_ne != null && (last_ne.getKind().equals(ne_label) &&
 							!raw_label.startsWith("B-"))) {
@@ -196,9 +196,11 @@ public class CoreNLPAnnotator implements Annotator {
 	@Override
 	public void loadModels() {
 		Properties props = new Properties();
-		for (String key: properties.keySet()) {
-			String val = properties.get(key);
-			props.setProperty(key, val);
+		if (properties != null) {
+			for (String key: properties.keySet()) {
+				String val = properties.get(key);
+				props.setProperty(key, val);
+			}
 		}
 		props.setProperty("annotators", StringUtils.join(annotators, ","));
 		props.setProperty("enforceRequirements", "false");
