@@ -21,7 +21,7 @@ public class GlobalConfig extends SimpleModule {
 	private static final long serialVersionUID = -4518063863770124713L;
 	public String language="de";
 	public String default_pipeline="mate";
-	public String modelDir = "${user.dir}/data/pynlp/${lang}";
+	public String modelDir = "${user.home}/data/pynlp/${lang}";
 
 	public Map<String, List<Annotator>> pipelines;
 
@@ -43,8 +43,8 @@ public class GlobalConfig extends SimpleModule {
 	
 	public File computeModelDir() {
 		String s = modelDir;
-		s.replace("${user.dir}", System.getProperty("user.dir"));
-		s.replace("${lang}", language);
+		s = s.replace("${user.home}", System.getProperty("user.home"));
+		s = s.replace("${lang}", language);
 		return new File(s);
 	}
 	

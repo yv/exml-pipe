@@ -1,7 +1,7 @@
 ---
 language: "de"
 default_pipeline: "mate"
-modelDir: "${user.dir}/data/pynlp/data"
+modelDir: "${user.home}/data/pynlp/data"
 pipelines:
   de.mate:
   - !<de.versley.exml.annotators.MATEAnnotator>
