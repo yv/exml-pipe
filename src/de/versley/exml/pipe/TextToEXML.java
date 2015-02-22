@@ -8,12 +8,14 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.tools.ant.util.FileUtils;
 
 import de.versley.exml.annotators.Annotator;
 import de.versley.exml.config.GlobalConfig;
@@ -21,6 +23,7 @@ import exml.io.DocumentWriter;
 import exml.tueba.TuebaDocument;
 
 public class TextToEXML {
+	static Pattern SPECIAL_FILES = Pattern.compile("offsets\\.txt");
 	static Options options;
 
 	static {
@@ -97,6 +100,16 @@ public class TextToEXML {
 			}
 			for (File f_curr: f_arg.listFiles()) {
 				File f_out = new File((String)cmd.getArgList().get(1), f_curr.getName());
+				if (SPECIAL_FILES.matcher(f_curr.getName()).matches()) {
+					System.err.println("Copying special file:"+f_curr.toString());
+					try {
+						FileUtils.getFileUtils().copyFile(f_curr, f_out);
+					} catch (IOException e) {
+						e.printStackTrace();
+						System.exit(1);
+					}
+					continue;
+				}
 				if (!f_out.getName().endsWith(".exml.xml")) {
 					String tmp = f_out.toString();
 					tmp=tmp.replaceAll("\\.(txt|html|xml)$", "");
