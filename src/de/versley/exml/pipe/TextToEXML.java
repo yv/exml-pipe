@@ -120,6 +120,8 @@ public class TextToEXML {
 						f_out.exists()) {
 					try {
 						TuebaDocument doc = TuebaDocument.loadDocument(f_out.getPath());
+						System.err.format("%s is a valid exml file with %d tokens, skipping",
+								f_out.getName(), doc.size());
 						continue;
 					} catch (IOException ex) {
 						// well, then we should re-annotate it
