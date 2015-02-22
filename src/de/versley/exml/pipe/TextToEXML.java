@@ -30,6 +30,7 @@ public class TextToEXML {
 		options = new Options();
 		options.addOption("lang", true, "language (default:de)");
 		options.addOption("pipeline", true, "pipeline (default: mate)");
+		options.addOption("noclobber", false, "don't overwrite existing target files (default:no)");
 	}
 	
 	public static TuebaDocument importFile(String fname, GlobalConfig conf) throws IOException {
@@ -114,6 +115,15 @@ public class TextToEXML {
 					String tmp = f_out.toString();
 					tmp=tmp.replaceAll("\\.(txt|html|xml)$", "");
 					f_out = new File(tmp+".exml.xml");
+				}
+				if (cmd.hasOption("noclobber") &&
+						f_out.exists()) {
+					try {
+						TuebaDocument doc = TuebaDocument.loadDocument(f_out.getPath());
+						continue;
+					} catch (IOException ex) {
+						// well, then we should re-annotate it
+					}
 				}
 				System.err.println("Processing: "+f_out.getName());
 				try {
