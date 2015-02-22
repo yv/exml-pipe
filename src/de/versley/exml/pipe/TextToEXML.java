@@ -23,7 +23,7 @@ import exml.io.DocumentWriter;
 import exml.tueba.TuebaDocument;
 
 public class TextToEXML {
-	static Pattern SPECIAL_FILES = Pattern.compile("offsets\\.txt");
+	static Pattern SPECIAL_FILES = Pattern.compile("offsets(?:_[a-z]+)?\\.txt");
 	static Options options;
 
 	static {
