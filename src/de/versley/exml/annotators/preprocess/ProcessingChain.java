@@ -27,9 +27,7 @@ public class ProcessingChain implements LineProcessor {
 				stages.get(_stage).preprocess_line(line,
 						new Stage(_stage+1, _and_then));
 			}
-			
 		}
-		
 	}
 
 	@Override
@@ -48,6 +46,7 @@ public class ProcessingChain implements LineProcessor {
 	@Override
 	public void close() {
 		for (LineProcessor lp: stages) {
+			//System.err.println("closing:"+lp.toString());
 			lp.close();
 		}
 	}

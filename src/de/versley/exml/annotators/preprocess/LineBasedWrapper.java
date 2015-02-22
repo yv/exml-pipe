@@ -5,6 +5,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,6 +19,7 @@ import com.google.common.collect.Queues;
 
 public class LineBasedWrapper implements LineProcessor {
 	public List<String> cmd;
+	public String encoding;
 	protected Queue<LineConsumer> _consumers =
 			Queues.newArrayDeque();
 	protected Thread _gobbler = null;
@@ -33,16 +35,25 @@ public class LineBasedWrapper implements LineProcessor {
 		cmd.addAll(parts);
 	}
 
+	public LineBasedWrapper(Collection<String> parts, String enc) {
+		cmd = new ArrayList<String>();
+		cmd.addAll(parts);
+		encoding = enc;
+	}
 
 	@Override
 	public void loadModels() {
 		ProcessBuilder pb = new ProcessBuilder(cmd);
+		if (encoding == null) {
+			encoding = "UTF-8";
+		}
 		try {
 			pb.redirectError(ProcessBuilder.Redirect.INHERIT);
 			_proc = pb.start();
 			_proc_out = new BufferedWriter(
-				new OutputStreamWriter(_proc.getOutputStream()));
-			_proc_in = new BufferedReader(new InputStreamReader(_proc.getInputStream()));
+				new OutputStreamWriter(_proc.getOutputStream(), Charset.forName(encoding)));
+			_proc_in = new BufferedReader(new InputStreamReader(_proc.getInputStream(),
+					Charset.forName(encoding)));
 			// Workaround: Java wraps the streams in a BufferedStream,
 			//  which is absolutely horrible if we want to read single lines
 			_gobbler = new Thread(new Runnable() {
@@ -50,8 +61,12 @@ public class LineBasedWrapper implements LineProcessor {
 					while(true) {
 						String s;
 						try {
-							System.err.println("Gobbler: waiting for line");
+							// System.err.println("Gobbler: reading ");
 							s = _proc_in.readLine();
+							if (s == null) {
+								break;
+							}
+							// System.err.println("Gobbler: received "+s);
 							synchronized(_consumers) {
 								LineConsumer c = _consumers.remove();
 								c.consume(s);
@@ -81,6 +96,7 @@ public class LineBasedWrapper implements LineProcessor {
 		try {
 			synchronized (_consumers) {
 				_consumers.add(and_then);
+				//System.err.println("LBW: write "+input);
 				_proc_out.write(input);
 				if (!input.endsWith("\n")) {
 					_proc_out.newLine();
@@ -125,6 +141,4 @@ public class LineBasedWrapper implements LineProcessor {
 		}
 		wrap.close();
 	}
-
-	
 }
