@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import de.versley.exml.async.Consumer;
 import de.versley.exml.config.FileReference;
 
 public class BonsaiPreprocessor extends ProcessingChain {
@@ -33,7 +34,7 @@ public class BonsaiPreprocessor extends ProcessingChain {
 		proc.loadModels();
 		for (String s: new String[]{"Salut , tout le monde", "Le bonsai n' est pas un épice ."}) {
 			final String ss = s;
-			proc.preprocess_line(s, new LineConsumer() {
+			proc.process(s, new Consumer<String>() {
 				@Override
 				public void consume(String line) {
 					System.out.println("Input: "+ss);

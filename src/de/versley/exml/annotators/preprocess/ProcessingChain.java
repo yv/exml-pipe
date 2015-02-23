@@ -2,6 +2,8 @@ package de.versley.exml.annotators.preprocess;
 
 import java.util.List;
 
+import de.versley.exml.async.Consumer;
+
 /**
  * utility class that arranges multiple LineProcessor instances
  * into a pipeline.
@@ -11,10 +13,10 @@ import java.util.List;
 public class ProcessingChain implements LineProcessor {
 	public List<LineProcessor> stages;
 	
-	public class Stage implements LineConsumer {
+	public class Stage implements Consumer<String> {
 		private int _stage;
-		private LineConsumer _and_then;
-		public Stage(int st, LineConsumer th) {
+		private Consumer<String> _and_then;
+		public Stage(int st, Consumer<String> th) {
 			_stage = st;
 			_and_then = th;
 		}
@@ -24,7 +26,7 @@ public class ProcessingChain implements LineProcessor {
 			if (_stage == stages.size()) {
 				_and_then.consume(line);
 			} else {
-				stages.get(_stage).preprocess_line(line,
+				stages.get(_stage).process(line,
 						new Stage(_stage+1, _and_then));
 			}
 		}
@@ -39,7 +41,7 @@ public class ProcessingChain implements LineProcessor {
 	}
 
 	@Override
-	public void preprocess_line(String input, LineConsumer and_then) {
+	public void process(String input, Consumer<String> and_then) {
 		new Stage(0, and_then).consume(input);
 	}
 

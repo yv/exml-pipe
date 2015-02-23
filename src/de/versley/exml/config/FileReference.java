@@ -21,7 +21,10 @@ public class FileReference {
 	public String relPath;
 	protected GlobalConfig conf;
 	public FileReference(String rp, GlobalConfig cf) {
-		relPath = rp;
+		String s = rp;
+		s = s.replace("${user.home}", System.getProperty("user.home"));
+		s = s.replace("${lang}", cf.language);
+		relPath = s;
 		conf = cf;
 	}
 	
@@ -31,7 +34,7 @@ public class FileReference {
 	}
 	
 	public File toFile() {
-		if (conf == null) {
+		if (conf == null || relPath.startsWith("/")) {
 			return new File(relPath);
 		} else {
 			return new File(conf.computeModelDir(), relPath);

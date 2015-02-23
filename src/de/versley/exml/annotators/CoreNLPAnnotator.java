@@ -32,7 +32,7 @@ import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
 import exml.tueba.util.SentenceTree;
 
-public class CoreNLPAnnotator implements Annotator {
+public class CoreNLPAnnotator extends SimpleAnnotator {
 	public List<String> annotators;
 	public Map<String, String> properties;
 	public FileReference posModel;
@@ -217,7 +217,7 @@ public class CoreNLPAnnotator implements Annotator {
 	}
 
 	@Override
-	public void unloadModels() {
+	public void close() {
 		pipeline = null;
 	}
 }

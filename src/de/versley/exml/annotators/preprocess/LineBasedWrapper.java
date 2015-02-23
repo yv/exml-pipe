@@ -17,10 +17,12 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.google.common.collect.Queues;
 
+import de.versley.exml.async.Consumer;
+
 public class LineBasedWrapper implements LineProcessor {
 	public List<String> cmd;
 	public String encoding;
-	protected Queue<LineConsumer> _consumers =
+	protected Queue<Consumer<String>> _consumers =
 			Queues.newArrayDeque();
 	protected Thread _gobbler = null;
 	private Process _proc = null;
@@ -68,7 +70,7 @@ public class LineBasedWrapper implements LineProcessor {
 							}
 							// System.err.println("Gobbler: received "+s);
 							synchronized(_consumers) {
-								LineConsumer c = _consumers.remove();
+								Consumer<String> c = _consumers.remove();
 								c.consume(s);
 							}
 						} catch (IOException ex) {
@@ -92,7 +94,7 @@ public class LineBasedWrapper implements LineProcessor {
 
 
 	@Override
-	public void preprocess_line(String input, LineConsumer and_then) {
+	public void process(String input, Consumer<String> and_then) {
 		try {
 			synchronized (_consumers) {
 				_consumers.add(and_then);
@@ -131,7 +133,7 @@ public class LineBasedWrapper implements LineProcessor {
 		wrap.loadModels();
 		for (String s: new String[]{"hello world", "goodbye world"}) {
 			final String ss = s;
-			wrap.preprocess_line(s, new LineConsumer() {
+			wrap.process(s, new Consumer<String>() {
 				@Override
 				public void consume(String line) {
 					System.out.println("Input: "+ss);

@@ -9,15 +9,25 @@ pipelines:
     parser_fname: "mate_models/pet-ger-S2a-40-0.25-0.1-2-2-ht4-hm4-kk0"
   - !<de.versley.exml.annotators.DepToConst>
     modelName: mate_models/deptoconst-tiger-small.obj.model
-  en.mate: # does not seem to work, since it's missing the lemmatizer
+  en.mate:
   - !<de.versley.exml.annotators.MATEAnnotator>
     lemma_fname: null
     parser_fname: "mate_models/per-eng-S2b-40.mdl"
+  fr.mate:
+  - !<de.versley.exml.annotators.MATEAnnotator>
+    lemma_fname: "mate_models/lemma-fra.mdl"
+    parser_fname: "mate_models/pet-fra-S2apply-40-0.25-0.1-2-2-ht4-hm4-kk0"
   de.pcfgla:
   - !<de.versley.exml.annotators.BPAnnotator>
     modelName: "berkeley/r6_train2.gr"
     transforms:
     - !<de.versley.exml.treetransform.NodeToFunction> {}
+  fr.pcfgla:
+  - !<de.versley.exml.annotators.BPAnnotator>
+    modelName: "${user.home}/sources/bonsai_v3.2/resources/bkygram/gram-ftbuc+dfl+clust0-200-v6"
+    customJar: "${user.home}/sources/bonsai_v3.2/resources/bjyjar/berkeleyParser-V1_0-fr.jar"
+    preprocess: !<de.versley.exml.annotators.preprocess.BonsaiPreprocessor>
+      bonsaiDir: "${user.home}/sources/bonsai_v3.2"
   en.corenlp:
   - !<de.versley.exml.annotators.CoreNLPAnnotator>
     annotators: [pos, lemma, ner, parse, dcoref]
@@ -31,9 +41,3 @@ pipelines:
     properties:
       ner.applyNumericClassifiers: false
       ner.useSUTime: false
-  fr.mate: # does not seem to work, since it's missing the lemmatizer
-  - !<de.versley.exml.annotators.MATEAnnotator>
-    lemma_fname: "mate_models/lemma-fra.mdl"
-    parser_fname: "mate_models/pet-fra-S2apply-40-0.25-0.1-2-2-ht4-hm4-kk0"
-   
-      

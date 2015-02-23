@@ -1,5 +1,10 @@
 package de.versley.exml.annotators.preprocess;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
+import de.versley.exml.async.Channel;
+import de.versley.exml.async.Consumer;
+
 /**
  * interface for pre-treatments that provide word clusters or
  * normalization or other stuff.
@@ -9,9 +14,10 @@ package de.versley.exml.annotators.preprocess;
  * @author yannick
  *
  */
-public interface LineProcessor {
+@JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
+public interface LineProcessor extends Channel<String,String>{
 	void loadModels();
-	void preprocess_line(String input, LineConsumer and_then);
+	void process(String input, Consumer<String> and_then);
 	/**
 	 * processes all pending lines and calls the corresponding and_then
 	 * methods.

@@ -13,18 +13,15 @@ import edu.berkeley.nlp.PCFGLA.TreeAnnotations;
 import edu.berkeley.nlp.syntax.Tree;
 import edu.berkeley.nlp.util.Numberer;
 import exml.objects.NamedObject;
-import exml.tueba.TuebaDocument;
 import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
-import exml.tueba.util.SentenceTree;
 
-public class BPAnnotator extends SimpleAnnotator {
+public class BPAnnotator extends AbstractParserAnnotator {
 	protected Grammar gram;
 	protected SophisticatedLexicon lex;
 	protected CoarseToFineMaxRuleParser parser;
 	
 	public FileReference modelName;
-	public List<TreeTransformer> transforms; 
 	public BPAnnotator(String model) {
 		modelName = new FileReference(model);
 		transforms = new ArrayList<TreeTransformer>();
@@ -46,19 +43,7 @@ public class BPAnnotator extends SimpleAnnotator {
 		}
 	}
 	
-	public void add_transform(TreeTransformer xform) {
-		transforms.add(xform);
-	}
-	
-	public Tree<String> parseWords(List<String> words) {
-		//TODO handle unparsed sentences
-		//TODO normalize strings
-		//TODO handle token replacement
-		return TreeAnnotations.unAnnotateTree(
-				parser.getBestConstrainedParse(words, null, false), true);
-	}
-
-	public NamedObject berkeley2node(Tree<String> bp_node, List<TuebaTerminal> terms, int posn)
+	public static NamedObject berkeley2node(Tree<String> bp_node, List<TuebaTerminal> terms, int posn)
 	{
 		int i = posn;
 		int offset = terms.get(0).getStart();
@@ -83,24 +68,11 @@ public class BPAnnotator extends SimpleAnnotator {
 	}
 	
 	@Override
-	public void annotate(TuebaDocument doc) {
-		List<SentenceTree> trees = SentenceTree.getTrees(doc);
-		for (SentenceTree t: trees) {
-			List<TuebaTerminal> terms = t.getTerminals();
-			List<String> words = new ArrayList<String>();
-			for (TuebaTerminal n: terms) {
-				words.add(n.getWord());
-			}
-			Tree<String> result = parseWords(words);
-			TuebaNodeMarkable m_root = (TuebaNodeMarkable) berkeley2node(result, terms, 0);
-			t.getRoots().clear();
-			t.getRoots().addAll(m_root.getChildren());
-			for (TreeTransformer xform: transforms) {
-				xform.transform(t);
-			}
-			t.reassignParents();
-			t.reassignSpans();
-			t.replaceNodes();
-		}
+	protected TuebaNodeMarkable do_parse(List<String> words,
+			List<TuebaTerminal> terms) {
+		Tree<String> result = TreeAnnotations.unAnnotateTree(
+				parser.getBestConstrainedParse(words, null, false), true);
+		TuebaNodeMarkable m_root = (TuebaNodeMarkable) berkeley2node(result, terms, 0);
+		return m_root;
 	}
 }
