@@ -2,13 +2,15 @@ package de.versley.exml.pipe;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
-import java.util.List;
 import java.util.regex.Pattern;
+
+import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -18,6 +20,8 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.tools.ant.util.FileUtils;
 
 import de.versley.exml.annotators.Annotator;
+import de.versley.exml.async.Consumer;
+import de.versley.exml.async.Pipeline;
 import de.versley.exml.config.GlobalConfig;
 import exml.io.DocumentWriter;
 import exml.tueba.TuebaDocument;
@@ -88,7 +92,11 @@ public class TextToEXML {
 			new HelpFormatter().printHelp("TextToEXML SourceFile [DestFile]", options);
 			System.exit(1);
 		}
-		List<Annotator> annotators = conf.createAnnotators();
+		Pipeline<TuebaDocument> pipeline = new Pipeline<TuebaDocument>();
+		for (Annotator anno: conf.createAnnotators()) {
+			pipeline.addStage(anno);
+		}
+		pipeline.loadModels();
 		//BPAnnotator bp_ann = new BPAnnotator("/home/yannick/data/r6_train2.gr");
 		//bp_ann.add_transform(new NodeToFunction());
 		//annotators.add(bp_ann);
@@ -127,15 +135,23 @@ public class TextToEXML {
 						// well, then we should re-annotate it
 					}
 				}
+				final File f_out_actual = f_out;
 				System.err.println("Processing: "+f_out.getName());
 				try {
 					TuebaDocument doc = importFile(f_curr.toString(), conf);
-					for (Annotator ann: annotators) {
-						ann.annotate(doc);
-					}
-					OutputStream os;
-					os = new FileOutputStream(f_out);
-					DocumentWriter.writeDocument(doc, os);
+					pipeline.process(doc, new Consumer<TuebaDocument>() {
+						public void consume(TuebaDocument result) {
+							OutputStream os;
+							try {
+								os = new FileOutputStream(f_out_actual);
+								DocumentWriter.writeDocument(result, os);
+								os.close();
+							} catch (Exception e) {
+								// TODO some kind of asynchronous error handling is needed here. Hm.
+								e.printStackTrace();
+							}
+						}
+					});
 				} catch (Exception e) {
 					e.printStackTrace();
 					System.exit(1);
@@ -144,23 +160,28 @@ public class TextToEXML {
 		} else {
 			try {
 				TuebaDocument doc = importFile(fname, conf);
-
-				for (Annotator ann: annotators) {
-					ann.annotate(doc);
-				}
-				OutputStream os;
+				final OutputStream os;
 				if (cmd.getArgList().size() > 1) {
 					os = new FileOutputStream((String) cmd.getArgList().get(1));
 				} else {
 					os = System.out;
 					System.err.println("writing to stdout");
 				}
-				DocumentWriter.writeDocument(doc, os);
+				pipeline.process(doc, new Consumer<TuebaDocument>() {
+					public void consume(TuebaDocument result) {
+						try {
+							DocumentWriter.writeDocument(result, os);
+						} catch (XMLStreamException e) {
+							e.printStackTrace();
+						}
+					}
+				});
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
 			}
 		}
+		pipeline.close();
 	}
 
 	private static String readFile(String filename) throws IOException {

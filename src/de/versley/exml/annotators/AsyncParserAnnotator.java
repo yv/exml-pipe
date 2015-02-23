@@ -18,6 +18,11 @@ import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
 import exml.tueba.util.SentenceTree;
 
+/**
+ * annotator for parsers that are used via a pipeline
+ * @author yannick
+ *
+ */
 public class AsyncParserAnnotator implements Annotator {
 
 	public List<TreeTransformer> transforms;

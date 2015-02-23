@@ -24,8 +24,12 @@ pipelines:
     - !<de.versley.exml.treetransform.NodeToFunction> {}
   fr.pcfgla:
   - !<de.versley.exml.annotators.BPAnnotator>
+    modelName: "berkeley/train.French.gold.ptb.train.gr"
+    transforms:
+    - !<de.versley.exml.treetransform.NodeToFunction> {}
+  fr.bonsai:
+  - !<de.versley.exml.annotators.BPAnnotator>
     modelName: "${user.home}/sources/bonsai_v3.2/resources/bkygram/gram-ftbuc+dfl+clust0-200-v6"
-    customJar: "${user.home}/sources/bonsai_v3.2/resources/bjyjar/berkeleyParser-V1_0-fr.jar"
     preprocess: !<de.versley.exml.annotators.preprocess.BonsaiPreprocessor>
       bonsaiDir: "${user.home}/sources/bonsai_v3.2"
   en.corenlp:
