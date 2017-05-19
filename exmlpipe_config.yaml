@@ -3,12 +3,10 @@ language: "de"
 default_pipeline: "mate"
 modelDir: "${user.home}/data/pynlp/data"
 pipelines:
-  de.mate:
+  de.mate: 
   - !<de.versley.exml.annotators.MATEAnnotator>
     lemma_fname: "mate_models/lemma-ger-3.6.model"
     parser_fname: "mate_models/pet-ger-S2a-40-0.25-0.1-2-2-ht4-hm4-kk0"
-  - !<de.versley.exml.annotators.DepToConst>
-    modelName: mate_models/deptoconst-tiger-small.obj.model
   en.mate:
   - !<de.versley.exml.annotators.MATEAnnotator>
     lemma_fname: null

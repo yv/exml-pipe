@@ -1,0 +1,53 @@
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src']
+            include '**/*.txt'
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+task getDeps(type: Copy) {
+    from configurations.runtime
+    into 'lib/'
+}
+
+build.finalizedBy(getDeps)
+
+dependencies {
+    compile fileTree(dir: 'ext_lib', include: ['*.jar'])
+    compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
+    compile group: 'dk.brics', name: 'automaton', version: '1.11'
+    compile group: 'org.incava', name: 'java-diff', version: '1.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.4.4'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.4.4'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.4.4'
+    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version:'2.4.4'
+    compile group: 'org.apache.ant', name: 'ant', version: '1.9.4'
+    compile group: 'edu.berkeley.nlp', name: 'berkeleyparser', version:'r32'
+    compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version:'3.6.11'
+    compile group: 'de.versley', name: 'exportxml', version: '1.0.7e'
+    compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.4.1', transitive:false
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId 'de.versley'
+            artifactId 'exml-pipe'
+            version '2.0.1'
+            from components.java
+        }
+    }
+}

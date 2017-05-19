@@ -103,7 +103,7 @@ public class MyAutomatonProvider implements AutomatonProvider, Serializable {
 		File objFile=new File(prefix+".obj.gz");
 		if (!objFile.exists()) {
 			// || objFile.lastModified()<txtFile.lastModified()) {
-			MyAutomatonProvider result=compile(Utils.openResourceIn(prefix+".txt", "UTF-8"));
+			MyAutomatonProvider result=compile(Utils.openResourceIn(MyAutomatonProvider.class, prefix+".txt", "UTF-8"));
 			try {
 				ObjectOutputStream oos=Utils.openObjectOut(objFile.getPath());
 				oos.writeObject(result);
