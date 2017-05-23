@@ -8,10 +8,12 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.xml.stream.XMLStreamException;
 
+import de.versley.exml.importers.Importer;
 import exml.GenericMarkable;
 import exml.MarkableLevel;
 import exml.MissingObjectException;
@@ -42,27 +44,20 @@ public class TextToEXML {
 	}
 	
 	public static TuebaDocument importFile(String fname, GlobalConfig conf) throws IOException {
-		if (fname.endsWith(".txt")) {
-			ExmlDocBuilder db = new ExmlDocBuilder(conf.language);
-			MarkableLevel<TuebaTopicMarkable> paragraph_level = db.getDocument().topics;
-			int num_paras = 0;
-			for (String para_text: readFileParagraphs(fname)) {
-			    int start_offset = db.getDocument().size();
-			    db.addText(para_text);
-                try {
-                    TuebaTopicMarkable m = paragraph_level.addMarkable(start_offset, db.getDocument().size());
-                    ++num_paras;
-                    m.setXMLId(String.format("p%d", num_paras));
-                } catch (MissingObjectException e) {
-                    throw new RuntimeException("Cannot create markable", e);
-                }
-            }
-			return db.getDocument();
-		} else if (fname.endsWith(".exml.xml")) {
-			return TuebaDocument.loadDocument(fname);
-		} else {
-			throw new RuntimeException("Don't know how to load file:"+fname);
+		List<Importer> importers = conf.createImporters();
+		String basename = null;
+		TuebaDocument doc;
+		for (Importer imp: importers) {
+			basename = imp.matchFilename(fname);
+			if (basename != null) {
+				try {
+					return imp.importFile(fname);
+				} catch (IOException ex) {
+					ex.printStackTrace();
+				}
+			}
 		}
+		return null;
 	}
 
     // TODO: pipeline implementation around it
@@ -93,6 +88,7 @@ public class TextToEXML {
 		for (Annotator anno: conf.createAnnotators()) {
 			pipeline.addStage(anno);
 		}
+		// TODO this seems to be redundant with getGlobalConfig
 		pipeline.loadModels();
 
 		String fname = (String) cmd.getArgList().get(0);
@@ -108,6 +104,10 @@ public class TextToEXML {
         } else {
 			try {
 				TuebaDocument doc = importFile(fname, conf);
+				if (doc == null) {
+					System.err.println("No importer found for "+fname);
+					System.exit(1);
+				}
 				final OutputStream os;
 				if (cmd.getArgList().size() > 1) {
 					os = new FileOutputStream((String) cmd.getArgList().get(1));
@@ -134,8 +134,10 @@ public class TextToEXML {
 
     public static void annotateDirectory(GlobalConfig conf, Pipeline<TuebaDocument> pipeline,
                                          File sourceDir, File targetDir, boolean noclobber) {
+	    List<Importer> importers = conf.createImporters();
         for (File f_curr: sourceDir.listFiles()) {
             File f_out = new File(targetDir, f_curr.getName());
+            TuebaDocument doc = null;
             if (SPECIAL_FILES.matcher(f_curr.getName()).matches()) {
                 System.err.println("Copying special file:"+f_curr.toString());
                 try {
@@ -145,18 +147,31 @@ public class TextToEXML {
                     System.exit(1);
                 }
                 continue;
+            } else {
+                String basename = null;
+                for (Importer imp: importers) {
+                    basename = imp.matchFilename(f_curr.getName());
+                    if (basename != null) {
+                        try {
+                            doc = imp.importFile(f_curr.getPath());
+                            break;
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+                }
+                if (basename != null && doc != null) {
+                    f_out = new File(targetDir, basename + ".exml.xml");
+                } else {
+                    System.err.println("No importer for file: " + f_curr.getName());
+                    continue;
+                }
             }
-            if (!f_out.getName().endsWith(".exml.xml")) {
-                String tmp = f_out.toString();
-                tmp=tmp.replaceAll("\\.(txt|html|xml)$", "");
-                f_out = new File(tmp+".exml.xml");
-            }
-if (noclobber &&
-                    f_out.exists()) {
+            if (noclobber && f_out.exists()) {
                 try {
-                    TuebaDocument doc = TuebaDocument.loadDocument(f_out.getPath());
+                    TuebaDocument doc_processed = TuebaDocument.loadDocument(f_out.getPath());
                     System.err.format("%s is a valid exml file with %d tokens, skipping",
-                            f_out.getName(), doc.size());
+                            f_out.getName(), doc_processed.size());
                     continue;
                 } catch (IOException ex) {
                     // well, then we should re-annotate it
@@ -165,7 +180,6 @@ if (noclobber &&
             final File f_out_actual = f_out;
             System.err.println("Processing: "+f_out.getName());
             try {
-                TuebaDocument doc = importFile(f_curr.toString(), conf);
                 pipeline.process(doc, (TuebaDocument result) -> {
                     OutputStream os;
                     try {
@@ -208,21 +222,4 @@ if (noclobber &&
 		return conf;
 	}
 
-	private static String readFile(String filename) throws IOException {
-		FileInputStream in = new FileInputStream(filename);
-		InputStreamReader rd = new InputStreamReader(in, Charset.forName("UTF-8"));
-		StringBuffer sb = new StringBuffer();
-		char[] buf = new char[4096];
-		int n;
-		while ((n=rd.read(buf))!=-1) {
-			sb.append(buf, 0, n);
-		}
-		rd.close();
-		return sb.toString();
-	}
-
-	private static String[] readFileParagraphs(String filename) throws IOException {
-	    String contents = readFile(filename);
-	    return contents.split("\n\n+");
-    }
 }

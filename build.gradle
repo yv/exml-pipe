@@ -37,7 +37,7 @@ dependencies {
     compile group: 'org.apache.ant', name: 'ant', version: '1.9.4'
     compile group: 'edu.berkeley.nlp', name: 'berkeleyparser', version:'r32'
     compile group: 'nz.ac.waikato.cms.weka', name: 'weka-stable', version:'3.6.11'
-    compile group: 'de.versley', name: 'exportxml', version: '1.0.7e'
+    compile group: 'de.versley', name: 'exportxml', version: '1.0.8'
     compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.4.1', transitive:false
 }
 

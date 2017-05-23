@@ -16,6 +16,10 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import de.versley.exml.annotators.Annotator;
 import de.versley.exml.annotators.BPAnnotator;
 import de.versley.exml.annotators.MATEAnnotator;
+import de.versley.exml.importers.ExmlImporter;
+import de.versley.exml.importers.Importer;
+import de.versley.exml.importers.SegmentImporter;
+import de.versley.exml.importers.TextImporter;
 
 public class GlobalConfig extends SimpleModule {
 	private static final long serialVersionUID = -4518063863770124713L;
@@ -25,6 +29,7 @@ public class GlobalConfig extends SimpleModule {
 
 	public Map<String, List<Annotator>> pipelines;
 
+	public List<Importer> importers;
 	
 	public List<Annotator> createAnnotators() {
 		List<Annotator> pipeline = pipelines.get(
@@ -40,6 +45,25 @@ public class GlobalConfig extends SimpleModule {
 		}
 		return pipeline;
 	}
+
+	public List<Importer> createImporters() {
+	    if (importers == null) {
+	        importers = defaultImporters();
+        }
+        for (Importer imp: importers) {
+	        imp.setLanguage(language);
+	        imp.loadModels();
+        }
+        return importers;
+    }
+
+    private List<Importer> defaultImporters() {
+	    List<Importer> result = new ArrayList<>();
+	    result.add(new TextImporter());
+	    result.add(new ExmlImporter());
+	    result.add(new SegmentImporter());
+	    return result;
+    }
 	
 	public File computeModelDir() {
 		String s = modelDir;

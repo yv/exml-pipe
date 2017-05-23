@@ -1,9 +1,9 @@
 ---
 language: "de"
-default_pipeline: "mate"
+default_pipeline: "mate_topics"
 modelDir: "${user.home}/data/pynlp/data"
 pipelines:
-  de.mate: 
+  de.mate:
   - !<de.versley.exml.annotators.MATEAnnotator>
     lemma_fname: "mate_models/lemma-ger-3.6.model"
     parser_fname: "mate_models/pet-ger-S2a-40-0.25-0.1-2-2-ht4-hm4-kk0"
