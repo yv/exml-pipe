@@ -56,6 +56,21 @@ public class TestGerman extends TestTokenizer {
         assertTokenization(tok, "Ein Spät-1968er im BMW auf der A7");
         assertTokenization(tok, "Commedia dell'|arte an der Côte d'|Azur");
         assertTokenization(tok, "@gqspain @tracy_clemens LOVE IT #GQSpain");
+        assertTokenization(tok,
+                "Papierbackformen (|https://www.pack4food24.de/Baeckerei-Konditorei-Confiserie/"+
+                        "Einwegbackformen-aus-Papier|)");
+    }
+
+    @Test
+    public void testBoundaries() {
+        assertSentence(tok, "Ich nehme Modell A.| In Variante 12.|");
+        assertSentence(tok,
+                "Dies ist ein Satz ohne Anführungszeichen.| "+
+                "\"Hier kommen Anführungszeichen!| Sie werden passend zugeordnet.\"| "+
+                "Der nächste Satz hat wieder keine.|");
+        assertSentence(tok, "Wir wussten es:| Schokolade macht dick.|");
+        assertSentence(tok, "Neuer Film (Regie: Alan Smithee), USA 2001");
+        //assertSentence(tok, "\"Sätze mit Anführungszeichen sind toll.\"|");
     }
 
     @Parameters

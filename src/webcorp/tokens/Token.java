@@ -21,6 +21,12 @@ public final class Token {
 	public boolean hasFlag(int flag) {
 	    return (flags & flag) == flag;
     }
+    public void addFlag(int flag) {
+	    flags |= flag;
+    }
+    public void removeFlag(int flag) {
+	    flags &= ~flag;
+    }
 	public boolean isSentStart() {
 		return hasFlag(FLAG_BOUNDARY);
 	}

@@ -158,6 +158,51 @@ public class JFlexTokenizer implements TokenizerInterface {
         return false;
     }
 
+    void fixSentBoundaries(List<Token> tokens) {
+	    int last_dquot = -1;
+	    int last_oparen = -1;
+	    for (int i=0; i < tokens.size(); i++) {
+	        Token tok = tokens.get(i);
+	        if (tok.hasType(Token.TYPE_PUNCT_QUOTE)) {
+	            if (last_dquot == -1) {
+	                last_dquot = i;
+                } else {
+	                if (tok.hasFlag(Token.FLAG_BOUNDARY)) {
+	                    tok.removeFlag(Token.FLAG_BOUNDARY);
+	                    if (i < tokens.size() - 1) {
+	                        tokens.get(i+1).addFlag(Token.FLAG_BOUNDARY);
+                        }
+                    }
+                    last_dquot = -1;
+                }
+            } else if ("(".equals(tok.value)) {
+	            last_oparen = i;
+            } else if (")".equals(tok.value)) {
+	            if (last_oparen >= 0) {
+                    if (tok.hasFlag(Token.FLAG_BOUNDARY)) {
+                        tok.removeFlag(Token.FLAG_BOUNDARY);
+                        if (i < tokens.size() - 1) {
+                            tokens.get(i+1).addFlag(Token.FLAG_BOUNDARY);
+                        }
+                    }
+                    boolean colon_seen = false;
+                    for (int j=last_oparen+1; j<i; j++) {
+                        if (tokens.get(j+1).hasFlag(Token.FLAG_BOUNDARY) &&
+                                ":".equals(tokens.get(j).value)) {
+                            colon_seen = true;
+                            tokens.get(j+1).removeFlag(Token.FLAG_BOUNDARY);
+                        }
+                    }
+                    if (colon_seen && i < tokens.size() - 1 &&
+                            _sent_start_re.matches(tokens.get(i+1).value)) {
+                        tokens.get(i+1).addFlag(Token.FLAG_BOUNDARY);
+                    }
+                    last_oparen = -1;
+                }
+            }
+        }
+    }
+
 	/*
 	 * needed: - attach clitic 's and ' to proper names (McDonald's, Disney's
 	 * but not geht's hat's) - attach - to truncated items (-los, -bohrung) but
@@ -217,6 +262,8 @@ public class JFlexTokenizer implements TokenizerInterface {
 				result.get(i + 1).flags |= Token.FLAG_BOUNDARY;
 			}
 		}
+		// Step 2b: fix sentence boundaries for quotes and parens
+        fixSentBoundaries(result);
 		// Step 3: reattach some clitics (Hans', Disney's)
 		tok = result.get(0);
 		for (int i = 1; i < result.size(); i++) {
