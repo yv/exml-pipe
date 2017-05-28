@@ -53,7 +53,7 @@ public class TokenizerDiff {
 					new FileInputStream(args[0]), Charset.forName("UTF-8")));
 			/**TokenizerModel tok_model = new TokenizerModel(new FileInputStream("models/de-token.bin"));
 			Tokenizer tokenizer=new TokenizerME(tok_model);*/
-			DFATokenizer tokenizer=new DFATokenizer("de");
+			JFlexTokenizer tokenizer=new JFlexTokenizer("de");
 			ObjectMapper m = new ObjectMapper();
 			String s;
 			int nDiffs=0;

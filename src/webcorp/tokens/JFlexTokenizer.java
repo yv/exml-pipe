@@ -118,7 +118,10 @@ public class JFlexTokenizer implements TokenizerInterface {
 		    return true;
         }
 		if (is_roman || s_pos.length() <= 2) {
-            return isLower(s_post) || num_post;
+            return isLower(s_post) || num_post ||
+                    (s_pre.endsWith(".")
+                            && result.get(pos - 2).hasType(Token.TYPE_NUMBER)
+                            && !_sent_start_re.matches(s_post));
         } else {
 		    return _ord_gen_re.matches(s_post);
         }

@@ -27,17 +27,22 @@ import static webcorp.tokens.Token.TYPE_PUNCT_DASH;
 %}
 
 AlNum=(\p{L}|\p{Nd})
-XY=§\d+|\d+x\d+|{AlNum}+([_-]{AlNum}+)*\.(jpe?g|gif|docx?|xlsx?|png)
+XY=§\d+|\d+[x:/]\d+|\p{Lu}+\d+|{AlNum}+([_-]{AlNum}+)*\.(jpe?g|gif|docx?|xlsx?|png)
 ArabicNumber=\p{Nd}+(\.\p{Nd}{3})*(,\p{Nd}+)?
 RomanNumber=II|III|IV|V|X+V?I*|VI+
-// ISODate=(20|19)[0-9][0-9]-[01][0-9]-[0-3][0-9]
-ISODate=20\d\d-\d\d-\d\d
+ISODate=20\d\d-[0-1]\d-[0-3]\d
 KnownDomain=((\w+-)*\w+)\.(com|net|org|gov|de|at|info|biz|ly|tv)
 UrlPath=\/(\w+\/)*(\w+(\.\w+)?)
+UserName=(\p{L}+_)*\p{L}+\d*
 Prefix={AlNum}+(\.|[:/])?({AlNum}+)?-|\({AlNum}+-\)|\"{AlNum}+\"-|{XY}-
+DigitWord=(19|20)?[0-9][0-9]er\p{L}*
+SQuote=['\u2018\u2019]
 %%
 
-'(s|n|se) / [^\w]         { return mkToken(); }
+{SQuote}(s|n|se) / [^\w]         { return mkToken(); }
+(d|dell|nell){SQuote}            { return mkToken(); }
+@{UserName}               { return mkToken(); }
+#\w+                      { return mkToken(); }
 {ISODate} / ![0-9]        { return mkToken(); }
 {ArabicNumber} / [^0-9]   { return mkToken(TYPE_NUMBER); }
 {RomanNumber} / \.        { return mkToken(TYPE_NUMBER); }
@@ -45,10 +50,11 @@ Prefix={AlNum}+(\.|[:/])?({AlNum}+)?-|\({AlNum}+-\)|\"{AlNum}+\"-|{XY}-
 {XY}                      { return mkToken(); }
 \w+(\.\w+)*@{KnownDomain} { return mkToken(); }
 (https?:\/\/)?(www\.)?{KnownDomain}{UrlPath}?  { return mkToken(); }
-{Prefix}*\p{L}+           { return mkToken(); }
+{Prefix}*(\p{L}+|{DigitWord}) { return mkToken(); }
 \d+-?\p{Lu}?\p{Ll}+       { return mkToken(); }
 [!\?]+ { return mkToken(TYPE_PUNCT_S); }
-\.     { return mkToken(); }
+\.     { return mkToken(TYPE_PUNCT_S); }
+:      { return mkToken(TYPE_PUNCT_S); }
 \.\.+  { return mkToken(TYPE_PUNCT_S); }
 \p{Pd} { return mkToken(TYPE_PUNCT_DASH); }
 \p{P}  { return mkToken(); }
