@@ -39,7 +39,6 @@ public class CoreNLPTokenizer implements TokenizerInterface {
 				tt.value = tok.getString(TextAnnotation.class);
 				tt.start = tok.beginPosition();
 				tt.end = tok.endPosition();
-				tt.wsp_after = tok.after();
 				result.add(tt);
 				if (is_first) {
 					tt.flags |= Token.SENT_START;

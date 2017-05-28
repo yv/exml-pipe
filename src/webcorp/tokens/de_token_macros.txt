@@ -1,0 +1,45 @@
+## patterns for JFlexTokenizer
+>*> OrdNoun
+Meisterschaft|Generation|Gipfel|Jahr(es)?|Jahrhunderts?
+Kammer|Kl|Klasse|Kongreß|Konferenz|Liga|^Mal|Minute|Mitarbeiter
+Mitglied|OG|Obergeschoss|Order|Platz
+Quartal|Programm|Rang|Runde|Semester
+Senat|Sinfonie|Sitzung|Stelle
+Stock|Stockwerk|Strafkammer|Studie|Symphonie
+Tag|Tagung|Update|Veranstaltung
+Verordnung|Version|Vertrag|Wettbewerb|Zivilkammer
+Berliner|Bremer|Hamburger
+[Ii]nternationalen?|[Nn]ationalen?|Deutschen
+Januar|Februar|März|April|Mai|Juni|Juli
+August|September|Oktober|November|Dezember|[0-9]+
+
+>*> OrdGen
+eines|jedes|und|bis|v|von
+
+>*> WeakAbbrev
+[A-Za-z]
+>*> Abbrev
+Jan|Feb|Mar|Apr|Jun|Jul|Aug|Oct|Nov|Dec
+Mo|Di|Mi|Do|Fr|Sa
+(\p{L}+-)*\p{L}+(str|korr|fg|b[rg])
+(Dr|Dipl)\.?-(Ing|Inf)
+.+/[mM]in|Art|Abs|Anm|autom|AZ|Az|B/s|Bd|Ber|[Bb]etr|BGBl|bzw
+Chr|Co|Corp|[dD]ipl|[dD]r|Ebb?|Engl|el|[Hh]rsg|II|Inc|Jh(dt)?|[Jj]r|Ltd|Kl|Max
+Mill|Min|Mio|Mr|Mrd|Mw[Ss]t|Nr|Par|Pf|(Pf|M)gff?|[Pp]hil|Pol|Proc|Prof|Red
+[Ss]ch|Sek|St|Std|.*Str|[Tt]el|[Tt]h|[Tt]heol|USt|Ver|[Vv]gl|Vol|Zi|[Zz]it
+[A-ZÄÖÜ]\\.-[A-ZÄÖÜ]|al|bspw?|bzw|ca|co|div|entspr|etc|evtl|excl
+exkl|<Nd>*ff|ggf|in[ck]l|insb|jr|lt|max|min|mind|nwtg|op|resp|soc|sog|usf|usw
+vs|wg|zzgl
+
+>*> LCName
+taz|dpa|1822direkt|3dfx|adidas|h2g2|heise|i-mode|id|t@x|tesion
+mediantis|debitel|speedlink
+
+>*> PreOrd
+de[rmns]|das|die|im|zum|am|beim|(sein|ihr|jed|dies)e[mnrs]?
+
+>*> SentStart
+Die|Der|Das|Ein|Eine|Dies|Diese|Weitere
+In|Im|An|Am|Auf|Aus|Neben|Um|Von|Vom|Mit|Für|Nach|Bei|Während
+Es|Auch|Nur|Und|Oder|Doch|Deshalb|Als|Aufgrund|Wie|Wenn|Warum|Wer
+Da|Dann|Damit|Dort|So|Aber|Je|Hier|Darauf|Bislang

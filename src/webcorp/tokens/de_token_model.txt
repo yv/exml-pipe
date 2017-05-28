@@ -20,7 +20,7 @@ Mo|Di|Mi|Do|Fr|Sa
 .+/[mM]in|Art|Abs|Anm|AZ|Az|B/s|Bd|Ber|[Bb]etr|BGBl|bzw
 Chr|Co|Corp|Dipl|Dr|Ebb?|Engl|[Hh]rsg|II|Inc|Jh(dt)?|[Jj]r|Ltd|Kl|Max
 Mill|Min|Mio|Mr|Mrd|Mw[Ss]t|Nr|Par|Pf|(Pf|M)gff?|[Pp]hil|Pol|Proc|Prof|Red
-[Ss]ch|St|Std|.*Str|[Tt]el|[Tt]h|[Tt]heol|Ver|[Vv]gl|Vol|Zi|[Zz]it
+[Ss]ch|Sek|St|Std|.*Str|[Tt]el|[Tt]h|[Tt]heol|Ver|[Vv]gl|Vol|Zi|[Zz]it
 [A-ZÄÖÜ]\\.-[A-ZÄÖÜ]|al|bspw?|bzw|ca|co|div|entspr|etc|evtl|excl
 exkl|<Nd>*ff|ggf|incl|inkl|jr|lt|max|min|mind|op|resp|soc|sog|usf|usw
 vs|wg|www|zzgl
@@ -32,7 +32,10 @@ mediantis|debitel|speedlink
 >>> Prefix
 ## prefixes such as 1000-, 16:9-, 2/3-, "Hochzeits"-, (Hochzeits-), 1.-
 ## ABER: nicht 75/Carl-
-(<L>|<Nd>)+(\\.|[:/])?((<L>|[0-9])+)?-|\((<L>|<Nd>)+-\)|\"(<L>|<Nd>)+\"-
+(<L>|<Nd>)+(\\.|[:/])?((<L>|[0-9])+)?-
+§<Nd>+-
+\((<L>|<Nd>)+-\)
+\"(<L>|<Nd>)+\"-
 >>> Word
 ## 16jähriger, 100mal, -mal
 (<L>\.(<L>\.)+|((<L>|dell|nell)')?<Prefix>*<L>+(-|/Innen])?|<Nd>+-?<Lu>?<Ll>+-?|[']<Ll>+)
@@ -43,7 +46,11 @@ mediantis|debitel|speedlink
 <Nd>+(:<Nd>+)+|0<Nd>{2,}/<Nd>+(-<Nd>+)*|<Nd>{3,}-(<Nd>+-)?(0|<Nd>{3,})|[12]?[0-9][:\.](15|[02-6][05])(,[0-9]{2})?
 >>> XY
 ## U-235, Q2
-§|<Lu>+-?(<Number>|<Numeric>)|www\\.<L>+\\.<L>{2,4}|http://(<L>|<Nd>|[/%])+
+<Lu>+-?(<Number>|<Numeric>)
+## www.example.com hello@example.com http://example.com/page.jsp
+www\.<L>+\.<L>{2,4}
+<L>+@<L>+\.<L>{2,4}
+https?://(<L>|<Nd>|[/%]|\.)+
 
 >*> Token
 <XY>|<Word>|<Number>|<Numeric>|\.{2,}|<P>

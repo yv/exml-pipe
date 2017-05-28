@@ -13,7 +13,7 @@ import org.incava.util.diff.Difference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class TokenizerTest {
+public class TokenizerDiff {
 	static void reportDiff(Difference d, List<String> tok1, List<String> tok2) {
 		int delStart = d.getDeletedStart();
 		int delEnd = d.getDeletedEnd();

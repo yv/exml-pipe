@@ -143,7 +143,6 @@ public class DFATokenizer implements TokenizerInterface {
 			if (attach) {
 				tok.value = tok.value + tokNext.value;
 				tok.end = tokNext.end;
-				tok.wsp_after = tokNext.wsp_after;
 				result.remove(i);
 				i--;
 			} else {
@@ -175,7 +174,6 @@ public class DFATokenizer implements TokenizerInterface {
 				if (attach) {
 					tok.value = tok.value + tokNext.value;
 					tok.end = tokNext.end;
-					tok.wsp_after = tokNext.wsp_after;
 					result.remove(i);
 					i--;
 				} else {
@@ -195,7 +193,6 @@ public class DFATokenizer implements TokenizerInterface {
 					&& !konj_re.matcher(tokNext.value).matches()) {
 				tok.value = tok.value + tokNext.value;
 				tok.end = tokNext.end;
-				tok.wsp_after = tokNext.wsp_after;
 				result.remove(i);
 				i--;
 			} else {
@@ -203,35 +200,5 @@ public class DFATokenizer implements TokenizerInterface {
 			}
 		}
 		return result;
-	}
-
-	static private String[] test_tokens = { "(Musik-)Geschichte",
-			"Anti-Abtreibungs-Gesetz", "öffentlich-rechtlichen", "§218-Gesetz" };
-
-	public void run_test() {
-		for (String s : test_tokens) {
-			AutomatonMatcher m = _token_dfa.newMatcher(s);
-			boolean f = m.find();
-			if (!f) {
-				System.err.println("Not recognized: " + s);
-				continue;
-			}
-			if (m.start() != 0 || m.end() != s.length()) {
-				System.err.format("Recognized %s, wanted %s\n", m.group(), s);
-				continue;
-			}
-		}
-	}
-
-	public static void main(String[] args) {
-		DFATokenizer tok = new DFATokenizer("de");
-		tok.run_test();
-		List<Token> toks = tok
-				.tokenize(
-						"Peter: Nach §218 und dem 12. 1000-Meter-Lauf, sagte die 16jährige, wäre alles- (naja, fast alles) mit dem \"Grenzenlos\"-Modell OK gewesen, mit ca. 12 Metern/Sek. Wissen's, das ist Charly's Traum, und Jonas'...",
-						0);
-		for (Token s : toks) {
-			System.out.println(s.value);
-		}
 	}
 }

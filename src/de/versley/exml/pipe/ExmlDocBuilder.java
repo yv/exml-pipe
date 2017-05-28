@@ -1,6 +1,7 @@
 package de.versley.exml.pipe;
 
 import webcorp.tokens.DFATokenizer;
+import webcorp.tokens.JFlexTokenizer;
 import webcorp.tokens.Token;
 import webcorp.tokens.TokenizerInterface;
 import de.versley.exml.annotators.CoreNLPTokenizer;
@@ -34,7 +35,7 @@ public class ExmlDocBuilder {
 	protected TokenizerInterface getTokenizer() {
 		if (_tok == null) {
 			if ("de".equals(_lang)) {
-				_tok = new DFATokenizer(_lang);
+				_tok = new JFlexTokenizer(_lang);
 			} else if ("en".equals(_lang)) {
 				_tok = new CoreNLPTokenizer();
 			}

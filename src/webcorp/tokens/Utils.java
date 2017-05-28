@@ -90,7 +90,7 @@ public class Utils {
 
 	public static BufferedReader openResourceIn(Class cls, String fname, String encoding) throws IOException {
 	    String packagePrefix = String.format("/%s/", cls.getPackage().getName().replace('.', '/'));
-	    System.err.format("Package: %s\n", packagePrefix);
+	    // System.err.format("Package: %s\n", packagePrefix);
 		InputStream stream=cls.getResourceAsStream(packagePrefix+fname);
 		if (stream == null) {
 			throw new RuntimeException("Could not load resource "+packagePrefix+fname);
