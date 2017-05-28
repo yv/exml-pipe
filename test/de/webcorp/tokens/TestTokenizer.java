@@ -10,8 +10,6 @@ import webcorp.tokens.Token;
 import webcorp.tokens.TokenizerInterface;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,11 +22,10 @@ import static org.junit.runners.Parameterized.*;
  */
 @RunWith(value=Parameterized.class)
 public class TestTokenizer {
-    protected TokenizerInterface tok;
-
-    public TestTokenizer(TokenizerInterface tokenizer) {
-        tok = tokenizer;
-    }
+    @Parameter(0)
+    public TokenizerInterface tok;
+    @Parameter(1)
+    public String tokName;
 
     @Test
     public void testGeneral() {
@@ -37,11 +34,24 @@ public class TestTokenizer {
         assertTokenization(tok, "more info on www.example.com|, or write to hello@example.com");
     }
 
-    @Parameters
-    public static Collection<TokenizerInterface> getTokenizers() {
-        return Arrays.asList(
+    @Test
+    public void testBoundaries() {
+        assertSentence(tok, "This is a sentence.| Dies ist ein Satz.|");
+    }
+
+    @Parameters(name="{index}:{1}")
+    public static List<Object[]> getTokenizers() {
+        return withTokenizers(
                 new JFlexTokenizer("de"),
                 new CoreNLPTokenizer());
+    }
+
+    public static List<Object[]> withTokenizers(TokenizerInterface ...tokenizers) {
+        List<Object[]>params = new ArrayList<>();
+        for (TokenizerInterface tok: tokenizers) {
+            params.add(new Object[] {tok, tok.getClass().getSimpleName()});
+        }
+        return params;
     }
 
     private static void compareSequences(List<Token> wanted, List<Token> result) {
@@ -54,6 +64,7 @@ public class TestTokenizer {
 
 
     private static final Pattern wsp_token = Pattern.compile("\\S+");
+
     static void assertTokenization(TokenizerInterface tokenizer, String testCase) {
         String[] parts = testCase.split("\\|");
         StringBuilder input = new StringBuilder();
@@ -114,6 +125,4 @@ public class TestTokenizer {
         IntArrayList resultS = getSentences(result);
         checkSentences(input.toString(), wanted, resultS);
     }
-
-
 }

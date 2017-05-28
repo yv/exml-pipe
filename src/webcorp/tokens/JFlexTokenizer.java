@@ -18,7 +18,7 @@ public class JFlexTokenizer implements TokenizerInterface {
     private final Pattern _pre_ord_re;
     private final Pattern _weak_abbrev_re;
     private final Pattern _sent_start_re;
-	public static final Pattern konj_re = Pattern.compile("und|oder|bis");
+	private final Pattern _konj_re;
 
 	public static final int WORD = 0;
 	public static final int NUMBER = 1;
@@ -55,7 +55,7 @@ public class JFlexTokenizer implements TokenizerInterface {
 	public JFlexTokenizer(String lang) {
         try {
             BufferedReader in = Utils.openResourceIn(JFlexTokenizer.class,
-                    "de_token_macros.txt", "UTF-8");
+                    lang+"_token_macros.txt", "UTF-8");
             Map<String, Pattern> patterns = compilePatterns(in);
             _abbrev_re = patterns.get("Abbrev");
             _lc_name_re = patterns.get("LCName");
@@ -64,6 +64,7 @@ public class JFlexTokenizer implements TokenizerInterface {
             _pre_ord_re = patterns.get("PreOrd");
             _weak_abbrev_re = patterns.get("WeakAbbrev");
             _sent_start_re = patterns.get("SentStart");
+            _konj_re = patterns.get("Conj");
         } catch (IOException e) {
             throw new RuntimeException("Cannot load patterns", e);
         }
@@ -82,11 +83,8 @@ public class JFlexTokenizer implements TokenizerInterface {
 	}
 
 	private boolean isLower(String s) {
-		if (Character.isLowerCase(s.charAt(0))) {
-            return !_lc_name_re.matches(s);
-		}
-		return false;
-	}
+        return Character.isLowerCase(s.charAt(0)) && !_lc_name_re.matches(s);
+    }
 
 	/*
 	 * if result[pos-1] is a number and result[pos] is a dot, is
@@ -118,7 +116,7 @@ public class JFlexTokenizer implements TokenizerInterface {
 		    return true;
         }
 		if (is_roman || s_pos.length() <= 2) {
-            return isLower(s_post) || num_post ||
+            return isLower(s_post) || num_post || ")".equals(s_post) ||
                     (s_pre.endsWith(".")
                             && result.get(pos - 2).hasType(Token.TYPE_NUMBER)
                             && !_sent_start_re.matches(s_post));
@@ -152,7 +150,7 @@ public class JFlexTokenizer implements TokenizerInterface {
         } else {
             return false;
         }
-        if (konj_re.matches(s_post) || ",".equals(s_post)) {
+        if (_konj_re.matches(s_post) || ",".equals(s_post)) {
             return true;
         }
         return false;
@@ -182,7 +180,21 @@ public class JFlexTokenizer implements TokenizerInterface {
                     if (tok.hasFlag(Token.FLAG_BOUNDARY)) {
                         tok.removeFlag(Token.FLAG_BOUNDARY);
                         if (i < tokens.size() - 1) {
-                            tokens.get(i+1).addFlag(Token.FLAG_BOUNDARY);
+                            String s_post = tokens.get(i+1).value;
+                            if (isLower(s_post) || ",".equals(s_post)) {
+                                // remove sentence boundary
+                                if (i - last_oparen < 12) {
+                                    for (int j=last_oparen+1; j<i; j++) {
+                                        if (tokens.get(j+1).hasFlag(Token.FLAG_BOUNDARY) &&
+                                                "!".equals(tokens.get(j).value)) {
+                                            tokens.get(j+1).removeFlag(Token.FLAG_BOUNDARY);
+                                        }
+                                    }
+                                }
+                                // fragment-internal sentence punctuation
+                            } else {
+                                tokens.get(i + 1).addFlag(Token.FLAG_BOUNDARY);
+                            }
                         }
                     }
                     boolean colon_seen = false;
@@ -210,7 +222,7 @@ public class JFlexTokenizer implements TokenizerInterface {
 	 */
 	public List<Token> tokenize(String input, int offset) {
 		List<Token> result = new ArrayList<Token>();
-		TokenScanner scanner = new TokenScanner(new StringReader(input));
+		TokenScanner scanner = new TokenScannerDE(new StringReader(input));
 		Token tok;
         try {
             while ((tok = scanner.yylex()) != null) {
@@ -281,7 +293,7 @@ public class JFlexTokenizer implements TokenizerInterface {
 				}
 				// System.err.format("%s|%s\n", tok.value,tokNext.value);
 				if (attach) {
-					tok.value = tok.value + tokNext.value;
+					tok.value += tokNext.value;
 					tok.end = tokNext.end;
 					result.remove(i);
 					i--;
@@ -299,7 +311,7 @@ public class JFlexTokenizer implements TokenizerInterface {
 			Token tokNext = result.get(i);
 			if (tok.value.length()>3 && tok.value.endsWith("-")
 					&& Character.isLetter(tokNext.value.charAt(0))
-					&& !konj_re.matcher(tokNext.value).matches()) {
+					&& !_konj_re.matcher(tokNext.value).matches()) {
 				tok.value = tok.value + tokNext.value;
 				tok.end = tokNext.end;
 				result.remove(i);

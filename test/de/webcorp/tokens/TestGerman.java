@@ -5,22 +5,11 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import webcorp.tokens.JFlexTokenizer;
-import webcorp.tokens.TokenizerInterface;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.List;
 
 @RunWith(value=Parameterized.class)
 public class TestGerman extends TestTokenizer {
-
-    public TestGerman(TokenizerInterface tokenizer) {
-        super(tokenizer);
-    }
-
-    @Test
-    public void testGeneral() {
-        super.testGeneral();
-    }
 
     @Test
     public void testGerman() {
@@ -43,6 +32,7 @@ public class TestGerman extends TestTokenizer {
         assertTokenization(tok, "Peter wohnt in der Susenstr. 4|.");
         assertTokenization(tok, "Ich nehme Modell A|. In Variante 12|.");
         assertTokenization(tok, "Bundestagssitzung am 7.|7. gemeldet|: 2016-07-08");
+        assertTokenization(tok, "Tore durch Alexis Alégué (|44.|) und Stefan Aigner (|38.|)");
     }
 
     @Test
@@ -51,8 +41,9 @@ public class TestGerman extends TestTokenizer {
         assertTokenization(tok, "Christian <|kickern@bollwerk107.de|>");
         assertTokenization(tok, "Ich verkaufe mein Nokia lumia 830|. ungefähr 1 Jahr alt|.");
         assertTokenization(tok, "Er schaut 1080p-Video auf seinem 16:9-Fernseher um 18:30|.");
-        // maybe: 19.30 81,- Erdogan'sche
+        // maybe: 19.30 81,- Erdogan'sche Tambourg'sell
         // maybe: Erdogan’sche (wrong quote) ko(s)mischen Nach†gedanke
+        // cW-Wert 3000|maH S&P|500
         assertTokenization(tok, "Ein Spät-1968er im BMW auf der A7");
         assertTokenization(tok, "Commedia dell'|arte an der Côte d'|Azur");
         assertTokenization(tok, "@gqspain @tracy_clemens LOVE IT #GQSpain");
@@ -70,12 +61,20 @@ public class TestGerman extends TestTokenizer {
                 "Der nächste Satz hat wieder keine.|");
         assertSentence(tok, "Wir wussten es:| Schokolade macht dick.|");
         assertSentence(tok, "Neuer Film (Regie: Alan Smithee), USA 2001");
-        //assertSentence(tok, "\"Sätze mit Anführungszeichen sind toll.\"|");
+        assertSentence(tok, "\"Sätze mit Anführungszeichen sind toll.\"|");
+        assertSentence(tok, "Speck und Thymianzweig ( ohne Salz ! ) weich kochen");
+        assertSentence(tok, "in regelmäßigen ( jeder zweite Aphorismus knallt ! ) , unbeherrschbaren");
+        assertSentence(tok, "durch den Brünstawald ( angenehm kühl ! ) hoch");
+        assertSentence(tok, "Windows 7 ( von DVD ! ) installiert");
+        assertSentence(tok, "Ein Satz.| (Noch ein Satz!)| Ein dritter Satz.");
+        assertSentence(tok, "Selbst aus der grandiosen Rollengeschichte "+
+                "(Lotte Lehmann! Viorica Ursuleac! Maria Reining !) "+
+                "fallen einem keine Sängerinnen ein, die");
     }
 
-    @Parameters
-    public static Collection<TokenizerInterface> getTokenizers() {
-        return Arrays.asList(
+    @Parameters(name="{index}:{1}")
+    public static List<Object[]> getTokenizers() {
+        return withTokenizers(
                 new JFlexTokenizer("de"));
     }
 }

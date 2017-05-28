@@ -6,7 +6,8 @@ import static webcorp.tokens.Token.TYPE_PUNCT_DASH;
 import static webcorp.tokens.Token.TYPE_PUNCT_QUOTE;
 
 %%
-%class TokenScanner
+%class TokenScannerDE
+%implements TokenScanner
 %unicode
 %char
 %type Token
@@ -30,7 +31,7 @@ import static webcorp.tokens.Token.TYPE_PUNCT_QUOTE;
 AlNum=(\p{L}|\p{Nd})
 SQuote=['\u2018\u2019]
 DQuote=[\"\u201c\u201d\u201e\u201f\u00ab\u00bb]|``|''|´´
-MixedIdentifier=[A-Z0-9]{2,}[A-Z0-9]+
+MixedIdentifier=[A-Z0-9]{2}[A-Z0-9]+
 XY=§\d+|\d+[x:/]\d+|\p{Lu}+\d+|{AlNum}+([_-]{AlNum}+)*\.(jpe?g|gif|docx?|xlsx?|png)|{MixedIdentifier}
 ArabicNumber=\p{Nd}+(\.\p{Nd}{3})*(,\p{Nd}+)?
 RomanNumber=II|III|IV|V|X+V?I*|VI+
@@ -41,7 +42,7 @@ UrlPath=\/({PathElement}\/)*({PathElement}(\.\w+)?)
 UserName=(\p{L}+_)*\p{L}+\d*
 Prefix={AlNum}+(\.|[:/])?({AlNum}+)?-|\({AlNum}+-\)|{DQuote}{AlNum}+{DQuote}-|{XY}-
 DigitWord=(19|20)?[0-9][0-9]er\p{L}*
-DigitName=1822direkt|3dfx|t@x|h2g2|t3n|m4e|([Nn]eo|nd)4[Jj]
+DigitName=1822direkt|3dfx|t@x|h2g2|t3n|m4e|([Nn]eo|nd)4[Jj]|S&P
 %%
 
 {SQuote}(s|n|se) / [^\w]        { return mkToken(); }

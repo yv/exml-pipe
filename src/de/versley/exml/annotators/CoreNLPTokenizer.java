@@ -40,8 +40,8 @@ public class CoreNLPTokenizer implements TokenizerInterface {
 				tt.start = tok.beginPosition();
 				tt.end = tok.endPosition();
 				result.add(tt);
-				if (is_first) {
-					tt.flags |= Token.SENT_START;
+				if (is_first && tt.start != 0) {
+					tt.addFlag(Token.FLAG_BOUNDARY);
 				}
 				is_first = false;
 			}

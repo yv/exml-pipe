@@ -33,7 +33,7 @@ task flexSrc {
                 classname: 'jflex.anttask.JFlexTask',
                 classpath: configurations.lex.asPath)
         ant.jflex(
-                file: 'jflex_src/tokens.jflex',
+                file: 'jflex_src/tokens_de.jflex',
                 destdir: 'jflex_output')
     }
 }
