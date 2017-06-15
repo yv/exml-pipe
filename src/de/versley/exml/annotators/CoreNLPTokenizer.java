@@ -15,7 +15,7 @@ import edu.stanford.nlp.process.Tokenizer;
 import edu.stanford.nlp.process.WordToSentenceProcessor;
 
 public class CoreNLPTokenizer implements TokenizerInterface {
-	public String language = "en";
+	public final String language = "en";
 	private WordToSentenceProcessor<CoreLabel> wts =
 			new WordToSentenceProcessor<CoreLabel>();
 

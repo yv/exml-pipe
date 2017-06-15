@@ -1,6 +1,5 @@
 package de.versley.exml.pipe;
 
-import webcorp.tokens.DFATokenizer;
 import webcorp.tokens.JFlexTokenizer;
 import webcorp.tokens.Token;
 import webcorp.tokens.TokenizerInterface;
