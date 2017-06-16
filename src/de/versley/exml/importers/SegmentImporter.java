@@ -5,6 +5,7 @@ import exml.tueba.TuebaDocument;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
+import java.io.InputStream;
 
 /** Reads the .seg.xml format for segmented raw text
  */
@@ -14,12 +15,12 @@ public class SegmentImporter extends SimpleImporter {
     }
 
     @Override
-    public TuebaDocument importFile(String fname) throws IOException {
+    public TuebaDocument importStream(InputStream is, String filename) throws IOException {
         ExmlDocBuilder db = new ExmlDocBuilder(language);
         try {
-            return SegmentReader.loadDocument(fname, db);
+            return SegmentReader.loadStream(is, db);
         } catch (XMLStreamException ex) {
-            throw new RuntimeException("Cannot load "+fname, ex);
+            throw new RuntimeException("Cannot load "+filename, ex);
         }
     }
 }

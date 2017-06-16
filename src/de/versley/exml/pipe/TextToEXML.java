@@ -1,23 +1,16 @@
 package de.versley.exml.pipe;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.nio.charset.Charset;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPOutputStream;
 
 import javax.xml.stream.XMLStreamException;
 
 import de.versley.exml.importers.Importer;
-import exml.GenericMarkable;
-import exml.MarkableLevel;
-import exml.MissingObjectException;
-import exml.tueba.TuebaTopicMarkable;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
@@ -41,6 +34,7 @@ public class TextToEXML {
 		options.addOption("lang", true, "language (default:de)");
 		options.addOption("pipeline", true, "pipeline (default: mate)");
 		options.addOption("noclobber", false, "don't overwrite existing target files (default:no)");
+		options.addOption("gz", false, "write gzip-compressed output");
 	}
 	
 	public static TuebaDocument importFile(String fname, GlobalConfig conf) throws IOException {
@@ -100,7 +94,8 @@ public class TextToEXML {
 			}
 			File targetDir = new File((String)cmd.getArgList().get(1));
             boolean noclobber = cmd.hasOption("noclobber");
-            annotateDirectory(conf, pipeline, f_arg, targetDir, noclobber);
+            boolean gzip = cmd.hasOption("gz");
+            annotateDirectory(conf, pipeline, f_arg, targetDir, noclobber, gzip);
         } else {
 			try {
 				TuebaDocument doc = importFile(fname, conf);
@@ -110,7 +105,13 @@ public class TextToEXML {
 				}
 				final OutputStream os;
 				if (cmd.getArgList().size() > 1) {
-					os = new FileOutputStream((String) cmd.getArgList().get(1));
+				    String out_file =(String) cmd.getArgList().get(1);
+					OutputStream os_file = new FileOutputStream(out_file);
+					if (out_file.endsWith(".gz")) {
+					    os = new GZIPOutputStream(os_file);
+                    } else {
+					    os = os_file;
+                    }
 				} else {
 					os = System.out;
 					System.err.println("writing to stdout");
@@ -134,6 +135,12 @@ public class TextToEXML {
 
     public static void annotateDirectory(GlobalConfig conf, Pipeline<TuebaDocument> pipeline,
                                          File sourceDir, File targetDir, boolean noclobber) {
+	    annotateDirectory(conf, pipeline, sourceDir, targetDir, noclobber, false);
+    }
+
+
+    public static void annotateDirectory(GlobalConfig conf, Pipeline<TuebaDocument> pipeline,
+                                     File sourceDir, File targetDir, boolean noclobber, boolean gzip) {
 	    List<Importer> importers = conf.createImporters();
         for (File f_curr: sourceDir.listFiles()) {
             File f_out = new File(targetDir, f_curr.getName());
@@ -175,15 +182,27 @@ public class TextToEXML {
                     continue;
                 } catch (IOException ex) {
                     // well, then we should re-annotate it
-                }
+				}
+            } else if (noclobber && new File(f_out.getAbsolutePath() + ".gz").exists()) {
+                System.err.format("%s is a compressed exml file, skipping",
+                        f_out.getName()+".gz");
+                continue;
             }
-            final File f_out_actual = f_out;
+            final File f_out_actual;
+            if (gzip) {
+                f_out_actual = new File(f_out.getAbsolutePath() + ".gz");
+            } else {
+                f_out_actual = f_out;
+            }
             System.err.println("Processing: "+f_out.getName());
             try {
                 pipeline.process(doc, (TuebaDocument result) -> {
                     OutputStream os;
                     try {
                         os = new FileOutputStream(f_out_actual);
+                        if (gzip) {
+                            os = new GZIPOutputStream(os);
+                        }
                         DocumentWriter.writeDocument(result, os);
                         os.close();
                     } catch (Exception e) {
@@ -216,7 +235,7 @@ public class TextToEXML {
 		}
 		if (cmd.getArgList().size() < 1) {
 			System.err.println("Not enough arguments.");
-			new HelpFormatter().printHelp("TextToEXML SourceFile [DestFile]", options);
+			new HelpFormatter().printHelp("TextToEXML [-noclobber] [-pipeline pipeline] SourceDir DestDir", options);
 			System.exit(1);
 		}
 		return conf;

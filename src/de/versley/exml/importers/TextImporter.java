@@ -6,10 +6,7 @@ import exml.MissingObjectException;
 import exml.tueba.TuebaDocument;
 import exml.tueba.TuebaTopicMarkable;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.Charset;
 
 /** Imports plain text files
@@ -19,13 +16,12 @@ public class TextImporter extends SimpleImporter {
         super(".txt");
     }
 
-    private static String[] readFileParagraphs(String filename) throws IOException {
-        String contents = readFile(filename);
+    private static String[] readStreamParagraphs(InputStream in, String filename) throws IOException {
+        String contents = readStream(in, filename);
         return contents.split("\n\n+");
     }
 
-    private static String readFile(String filename) throws IOException {
-        FileInputStream in = new FileInputStream(filename);
+    private static String readStream(InputStream in, String filename) throws IOException {
         InputStreamReader rd = new InputStreamReader(in, Charset.forName("UTF-8"));
         StringBuffer sb = new StringBuffer();
         char[] buf = new char[4096];
@@ -39,11 +35,11 @@ public class TextImporter extends SimpleImporter {
 
 
     @Override
-    public TuebaDocument importFile(String fname) throws IOException {
+    public TuebaDocument importStream(InputStream in, String fname) throws IOException {
         ExmlDocBuilder db = new ExmlDocBuilder(language);
         MarkableLevel<TuebaTopicMarkable> paragraph_level = db.getDocument().topics;
         int num_paras = 0;
-        for (String para_text: readFileParagraphs(fname)) {
+        for (String para_text: readStreamParagraphs(in, fname)) {
             int start_offset = db.getDocument().size();
             db.addText(para_text);
             try {

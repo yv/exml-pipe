@@ -4,7 +4,10 @@ import de.versley.exml.async.Consumer;
 import exml.tueba.TuebaDocument;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.zip.GZIPInputStream;
 
 /** Interface for an import file format
  */
@@ -31,6 +34,11 @@ public abstract class SimpleImporter implements Importer {
             File f_name = new File(fname.substring(0, fname.length()-extension.length()));
             return f_name.getName();
         }
+        // Gzip file => strip .gz
+        if (fname.endsWith(".gz")) {
+            File f_name = new File(fname.substring(0, fname.length()-3));
+            return matchFilename(f_name.getName());
+        }
         // not applicable -> return null
         return null;
     }
@@ -38,6 +46,17 @@ public abstract class SimpleImporter implements Importer {
     @Override
     public void loadModels() {
 
+    }
+
+    public abstract TuebaDocument importStream(InputStream input, String filename)
+            throws IOException;
+
+    public TuebaDocument importFile(String input) throws IOException {
+        InputStream is = new FileInputStream(input);
+        if (input.endsWith(".gz")) {
+            is = new GZIPInputStream(is);
+        }
+        return importStream(is, input);
     }
 
     @Override

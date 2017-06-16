@@ -103,10 +103,8 @@ public class SegmentReader extends DocumentReader<TuebaTerminal> {
         }
     }
 
-    public static TuebaDocument loadDocument(String xmlFile, ExmlDocBuilder builder)
-        throws FileNotFoundException, XMLStreamException
-    {
-        InputStream is = new FileInputStream(xmlFile);
+    public static TuebaDocument loadStream(InputStream is, ExmlDocBuilder builder)
+        throws FileNotFoundException, XMLStreamException {
         // We use Aalto-XML's internal APIs to make the reader more lenient towards illegal text
         InputFactoryImpl factory = new InputFactoryImpl();
         ReaderConfig cfg = factory.getNonSharedConfig(null, null,
@@ -121,5 +119,12 @@ public class SegmentReader extends DocumentReader<TuebaTerminal> {
         doc_reader.readBody();
         xml_reader.close();
         return builder.getDocument();
+    }
+
+    public static TuebaDocument loadDocument(String xmlFile, ExmlDocBuilder builder)
+        throws FileNotFoundException, XMLStreamException
+    {
+        InputStream is = new FileInputStream(xmlFile);
+        return loadStream(is, builder);
     }
 }
