@@ -1,5 +1,13 @@
 package de.versley.exml.importers;
 
+import com.fasterxml.aalto.WFCException;
+import com.fasterxml.aalto.evt.EventAllocatorImpl;
+import com.fasterxml.aalto.evt.EventReaderImpl;
+import com.fasterxml.aalto.in.ByteSourceBootstrapper;
+import com.fasterxml.aalto.in.ReaderConfig;
+import com.fasterxml.aalto.stax.InputFactoryImpl;
+import com.fasterxml.aalto.stax.StreamReaderImpl;
+import com.fasterxml.aalto.util.IllegalCharHandler;
 import de.versley.exml.pipe.ExmlDocBuilder;
 import exml.GenericMarkable;
 import exml.MarkableLevel;
@@ -8,9 +16,9 @@ import exml.io.ReaderStackEntry;
 import exml.objects.ObjectSchema;
 import exml.tueba.TuebaDocument;
 import exml.tueba.TuebaTerminal;
+import org.codehaus.stax2.XMLStreamReader2;
 
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.Attribute;
 import javax.xml.stream.events.EndElement;
@@ -61,7 +69,13 @@ public class SegmentReader extends DocumentReader<TuebaTerminal> {
                 StartElement elm = ev.asStartElement();
                 String tagname = elm.getName().getLocalPart();
                 if ("raw-text".equals(tagname)) {
-                    String text = _reader.getElementText();
+                    String text;
+                    try {
+                        text = _reader.getElementText();
+                    } catch(WFCException ex) {
+                        ex.printStackTrace();
+                        text = "omitted:"+ex.toString();
+                    }
                     // System.err.println("raw-text:"+text);
                     _builder.addText(text);
                 } else {
@@ -93,8 +107,15 @@ public class SegmentReader extends DocumentReader<TuebaTerminal> {
         throws FileNotFoundException, XMLStreamException
     {
         InputStream is = new FileInputStream(xmlFile);
-        XMLInputFactory factory = XMLInputFactory.newInstance();
-        XMLEventReader xml_reader = factory.createXMLEventReader(is);
+        // We use Aalto-XML's internal APIs to make the reader more lenient towards illegal text
+        InputFactoryImpl factory = new InputFactoryImpl();
+        ReaderConfig cfg = factory.getNonSharedConfig(null, null,
+                null, true, false);
+        cfg.configureForConvenience();
+        cfg.setIllegalCharHandler(new IllegalCharHandler.ReplacingIllegalCharHandler('?'));
+        XMLStreamReader2 reader = StreamReaderImpl.construct(
+                ByteSourceBootstrapper.construct(cfg, is));
+        XMLEventReader xml_reader = new EventReaderImpl(EventAllocatorImpl.getFastInstance(), reader);
         SegmentReader doc_reader =
                 new SegmentReader(xml_reader, builder);
         doc_reader.readBody();

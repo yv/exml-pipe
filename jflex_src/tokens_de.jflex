@@ -67,4 +67,4 @@ DigitName=1822direkt|3dfx|t@x|h2g2|t3n|m4e|([Nn]eo|nd)4[Jj]|S&P
 \p{Pd} { return mkToken(TYPE_PUNCT_DASH); }
 \p{P}  { return mkToken(); }
 \s+ { /* skip */ }
-.      { System.err.println("Weird character:"+yytext()); return mkToken(); }
+.      { /* System.err.println("Weird character:"+yytext()); */ return mkToken(); }
