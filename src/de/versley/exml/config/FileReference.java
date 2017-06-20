@@ -1,10 +1,6 @@
 package de.versley.exml.config;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -17,7 +13,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
  * @author yannick
  *
  */
-public class FileReference {
+public class FileReference implements Serializable {
 	public String relPath;
 	protected GlobalConfig conf;
 	public FileReference(String rp, GlobalConfig cf) {
@@ -49,7 +45,9 @@ public class FileReference {
 		return new FileInputStream(toFile());
 	}
 	
-	public static class Deserializer extends JsonDeserializer<FileReference> {
+	public static class Deserializer extends JsonDeserializer<FileReference>
+		implements Serializable
+	{
 		private GlobalConfig _conf;
 		
 		public Deserializer(GlobalConfig cf) {

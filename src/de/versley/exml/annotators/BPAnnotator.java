@@ -17,9 +17,9 @@ import exml.tueba.TuebaNodeMarkable;
 import exml.tueba.TuebaTerminal;
 
 public class BPAnnotator extends AbstractParserAnnotator {
-	protected Grammar gram;
-	protected SophisticatedLexicon lex;
-	protected CoarseToFineMaxRuleParser parser;
+	protected transient Grammar gram;
+	protected transient SophisticatedLexicon lex;
+	protected transient CoarseToFineMaxRuleParser parser;
 	
 	public FileReference modelName;
 	public BPAnnotator(String model) {

@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.versley.exml.config.FileReference;
 import de.versley.exml.schemas.CorefMarkable;
 import edu.stanford.nlp.dcoref.CorefChain;
@@ -39,8 +40,8 @@ public class CoreNLPAnnotator extends SimpleAnnotator {
 	public FileReference nerModel;
 	public FileReference parserModel;
 
-	
-	protected StanfordCoreNLP pipeline = null;
+	@JsonIgnore
+	protected transient StanfordCoreNLP pipeline = null;
 
 	public NamedObject stanford2node(Tree bp_node, List<TuebaTerminal> terms, int posn)
 	{

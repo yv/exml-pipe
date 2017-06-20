@@ -39,10 +39,8 @@ public class TextToEXML {
 	
 	public static TuebaDocument importFile(String fname, GlobalConfig conf) throws IOException {
 		List<Importer> importers = conf.createImporters();
-		String basename = null;
-		TuebaDocument doc;
 		for (Importer imp: importers) {
-			basename = imp.matchFilename(fname);
+			String basename = imp.matchFilename(fname);
 			if (basename != null) {
 				try {
 					return imp.importFile(fname);

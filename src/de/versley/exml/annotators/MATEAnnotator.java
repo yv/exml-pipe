@@ -16,9 +16,9 @@ import exml.tueba.util.SentenceTree;
 
 public class MATEAnnotator extends SimpleAnnotator {
 	@JsonIgnore
-	protected Lemmatizer _lemmatizer;
+	protected transient Lemmatizer _lemmatizer;
 	@JsonIgnore
-	protected Parser _parser;
+	protected transient Parser _parser;
 	public FileReference lemma_fname;
 	public FileReference parser_fname;
 

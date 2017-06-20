@@ -3,9 +3,10 @@ package de.versley.exml.annotators;
 import de.versley.exml.async.Consumer;
 import exml.tueba.TuebaDocument;
 
+import java.io.Serializable;
 import java.util.Locale;
 
-public abstract class SimpleAnnotator implements Annotator {
+public abstract class SimpleAnnotator implements Annotator, Serializable {
 
 	@Override
 	public void loadModels() {

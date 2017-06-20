@@ -2,6 +2,8 @@ package de.versley.exml.config;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectStreamException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,7 +32,15 @@ public class GlobalConfig extends SimpleModule {
 	public Map<String, List<Annotator>> pipelines;
 
 	public List<Importer> importers;
-	
+
+    /**
+     * creates the list of annotators for the selected pipeline.
+     *
+     * Changed (2.0.2): we don't trigger model loading here because
+     * TextToEXML will do this.
+     *
+     * @return
+     */
 	public List<Annotator> createAnnotators() {
 		List<Annotator> pipeline = pipelines.get(
 				String.format("%s.%s", language, default_pipeline));
@@ -39,9 +49,6 @@ public class GlobalConfig extends SimpleModule {
 		}
 		if (pipeline == null) {
 			throw new RuntimeException("No such pipeline:" +default_pipeline);
-		}
-		for (Annotator conf: pipeline) {
-			conf.loadModels();
 		}
 		return pipeline;
 	}
@@ -121,4 +128,27 @@ public class GlobalConfig extends SimpleModule {
 	public String getModuleName() {
 		return "GlobalConfig";
 	}
+
+	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
+	    out.writeObject("config.v1");
+		out.writeObject(language);
+		out.writeObject(modelDir);
+		out.writeObject(pipelines);
+		out.writeObject(importers);
+	}
+
+	private void readObject(java.io.ObjectInputStream in)
+			throws IOException, ClassNotFoundException {
+        String versionId = (String)in.readObject();
+        if ("config.v1".equals(versionId)) {
+            language = (String) in.readObject();
+            modelDir = (String) in.readObject();
+            pipelines = (Map<String, List<Annotator>>) in.readObject();
+            importers = (List<Importer>) in.readObject();
+        }
+    }
+	private void readObjectNoData()
+			throws ObjectStreamException {
+	    // No idea what this should do.
+    }
 }
