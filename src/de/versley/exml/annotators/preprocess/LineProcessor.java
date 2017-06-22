@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.versley.exml.async.Channel;
 import de.versley.exml.async.Consumer;
 
+import java.io.Serializable;
+
 /**
  * interface for pre-treatments that provide word clusters or
  * normalization or other stuff.
@@ -15,7 +17,7 @@ import de.versley.exml.async.Consumer;
  *
  */
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@class")
-public interface LineProcessor extends Channel<String,String>{
+public interface LineProcessor extends Channel<String,String>, Serializable {
 	void loadModels();
 	void process(String input, Consumer<String> and_then);
 	/**

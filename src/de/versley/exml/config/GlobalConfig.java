@@ -1,9 +1,6 @@
 package de.versley.exml.config;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectStreamException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -108,21 +105,28 @@ public class GlobalConfig extends SimpleModule {
 		return result;
 	}
 
-	public static GlobalConfig load(String configFname) {
-			YAMLFactory f = new YAMLFactory();
-			ObjectMapper m = new ObjectMapper(f);
-			GlobalConfig conf = new GlobalConfig();
-			m.registerModule(conf);
-			try {
-				ObjectReader r = m.reader(GlobalConfig.class);
-				ObjectReader r2 = r.withValueToUpdate(conf);
-				r2.readValue(new File(configFname));
+	public static GlobalConfig load(InputStream in, String configFname) {
+        YAMLFactory f = new YAMLFactory();
+        ObjectMapper m = new ObjectMapper(f);
+        GlobalConfig conf = new GlobalConfig();
+        m.registerModule(conf);
+        try {
+            ObjectReader r = m.reader(GlobalConfig.class);
+            ObjectReader r2 = r.withValueToUpdate(conf);
+            r2.readValue(in);
+            return conf;
+        } catch(Exception ex) {
+            throw new RuntimeException("Cannot load config:" + configFname, ex);
+        }
+    }
 
-				return conf;
-			} catch(Exception ex) {
-				throw new RuntimeException("Cannot load config:"+configFname, ex);
-			}
-	}
+	public static GlobalConfig load(String configFname) {
+        try {
+            return load(new FileInputStream(configFname), configFname);
+        } catch (FileNotFoundException ex) {
+            throw new RuntimeException("Cannot load config:" + configFname, ex);
+        }
+    }
 
 	@Override
 	public String getModuleName() {
@@ -132,6 +136,7 @@ public class GlobalConfig extends SimpleModule {
 	private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 	    out.writeObject("config.v1");
 		out.writeObject(language);
+		out.writeObject(default_pipeline);
 		out.writeObject(modelDir);
 		out.writeObject(pipelines);
 		out.writeObject(importers);
@@ -142,6 +147,7 @@ public class GlobalConfig extends SimpleModule {
         String versionId = (String)in.readObject();
         if ("config.v1".equals(versionId)) {
             language = (String) in.readObject();
+            default_pipeline = (String) in.readObject();
             modelDir = (String) in.readObject();
             pipelines = (Map<String, List<Annotator>>) in.readObject();
             importers = (List<Importer>) in.readObject();
