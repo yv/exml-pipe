@@ -2,12 +2,15 @@
 // publishToMavenLocal - installs the package to MavenLocal
 // shadowJar - creates a fat jar with everything in build/libs
 
+
+// Part 1. setting up things
 buildscript {
     repositories {
         jcenter()
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.0'
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
     }
 }
 
@@ -15,6 +18,7 @@ apply plugin: 'java'
 apply plugin: 'application'
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.jfrog.bintray'
 
 sourceSets {
     main {
@@ -29,6 +33,10 @@ sourceSets {
     test {
         java {
             srcDirs = ['test']
+        }
+        resources {
+            srcDirs = ['test']
+            include '**/*.yaml'
         }
     }
 }
@@ -45,6 +53,8 @@ configurations {
     lex
 }
 
+// Part 2. Special tasks
+
 task flexSrc {
     doLast {
         ant.taskdef(name: 'jflex',
@@ -56,13 +66,7 @@ task flexSrc {
     }
 }
 
-task getDeps(type: Copy) {
-    from configurations.runtime
-    into 'lib/'
-}
-
 compileJava.dependsOn(flexSrc)
-build.finalizedBy(getDeps)
 
 dependencies {
     lex group: 'de.jflex', name: 'jflex', version: '1.6.1'
@@ -92,6 +96,12 @@ task sourcesJar(type: Jar) {
     from sourceSets.main.allSource
 }
 
+task wrapper(type: Wrapper) {
+    version = '3.5'
+}
+
+// Part 3. Packaging
+
 mainClassName = 'de.versley.exml.pipe.TextToEXML'
 
 artifacts {
@@ -103,7 +113,7 @@ publishing {
         maven(MavenPublication) {
             groupId 'de.versley'
             artifactId 'exml-pipe'
-            version '2.0.1'
+            version '2.0.3'
             from components.java
         }
     }
