@@ -1,10 +1,7 @@
 package de.versley.exml.config;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -49,6 +46,15 @@ public class GlobalConfig extends SimpleModule {
 		}
 		return pipeline;
 	}
+
+	public Optional<List<Annotator>> createAnnotators(String name) {
+        List<Annotator> pipeline = pipelines.get(name);
+        if (pipeline == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(pipeline);
+        }
+    }
 
 	public List<Importer> createImporters() {
 	    if (importers == null) {
@@ -111,7 +117,7 @@ public class GlobalConfig extends SimpleModule {
         GlobalConfig conf = new GlobalConfig();
         m.registerModule(conf);
         try {
-            ObjectReader r = m.reader(GlobalConfig.class);
+            ObjectReader r = m.readerFor(GlobalConfig.class);
             ObjectReader r2 = r.withValueToUpdate(conf);
             r2.readValue(in);
             return conf;

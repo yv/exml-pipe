@@ -1,6 +1,6 @@
 ---
 language: "de"
-default_pipeline: "mate_topics"
+default_pipeline: "mate"
 modelDir: "${user.home}/data/pynlp/data"
 pipelines:
   de.mate:
@@ -43,3 +43,6 @@ pipelines:
     properties:
       ner.applyNumericClassifiers: false
       ner.useSUTime: false
+  de.remote:
+  - !<de.versley.exml.annotators.JerseyAnnotator>
+    pipeUrl: http://localhost:8181/pipe/de.mate

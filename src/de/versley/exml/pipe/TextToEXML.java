@@ -100,6 +100,8 @@ public class TextToEXML {
 				if (doc == null) {
 					System.err.println("No importer found for "+fname);
 					System.exit(1);
+				} else {
+					System.err.format("Input %s with %d tokens\n", fname, doc.size());
 				}
 				final OutputStream os;
 				if (cmd.getArgList().size() > 1) {
@@ -159,6 +161,7 @@ public class TextToEXML {
                     if (basename != null) {
                         try {
                             doc = imp.importFile(f_curr.getPath());
+                            System.err.format("Input %s with %d tokens\n", basename, doc.size());
                             break;
                         } catch (IOException ex) {
                             ex.printStackTrace();

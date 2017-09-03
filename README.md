@@ -7,8 +7,8 @@ DKPro in the UIMA ecosystem or GATE.
 
 The basic usage is as follows:
 ```
-shell$ gradle shadowJar
-shell$ java -jar build/libs/exml-pipe-all.jar -lang en -pipeline corenlp input-dir output-dir
+shell$ ./gradlew installDist
+shell$ build/install/exml-pipe/bin/exml-pipe -lang en -pipeline corenlp input-dir output-dir
 ```
 which would take a collection of text files in `input-dir`, annotate it with
 the CoreNLP pipeline and put the result files in `output-dir`
@@ -61,6 +61,29 @@ available for Java and Python:
 
  * Java library (used by ExmlPipe) https://github.com/yv/ExportXMLv2
  * Python library: https://github.com/yv/exmldoc
+
+## The ExmlPipe REST server
+
+ExmlPipe contains a JAX-RS-based REST web service for accessing its pipelines, which selects an import
+filter based on the `Content-type:` request header.
+
+You can start the annotation server as follows:
+
+```
+shell$ build/install/exml-pipe/bin/exml-server
+```
+
+It is then possible to feed raw text to the server and get out EXML-format files, as follows:
+```
+shell$ curl -X POST --data-binary @testfile_de.txt -H 'Content-type: text/plain' http://localhost:8080/pipe/de.mate
+```
+
+This will do the following things:
+
+ * load the pipeline `de.mate`, which is specified in `exmlpipe_config.yaml`. Be careful that loading multiple
+   pipelines one after the other will increase the total memory load on the server
+ * tokenize and import the text from `testfile_de.txt` which is passed in as POST data
+ * call the components of the `de.mate` pipeline
 
 ## The NLP Components in ExmlPipe
 
