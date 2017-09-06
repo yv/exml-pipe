@@ -33,6 +33,9 @@ pipelines:
   en.corenlp:
   - !<de.versley.exml.annotators.CoreNLPAnnotator>
     annotators: [pos, lemma, ner, parse, dcoref]
+  en.nlp4j:
+  - !<de.versley.exml.annotators.nlp4j.NLP4JAnnotator>
+    annotators: [pos, dep, ner]
   de.corenlp:
   - !<de.versley.exml.annotators.MATEAnnotator>
     lemma_fname: "mate_models/lemma-ger-3.6.model"

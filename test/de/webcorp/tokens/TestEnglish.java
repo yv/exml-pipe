@@ -1,15 +1,12 @@
 package de.webcorp.tokens;
 
 import de.versley.exml.annotators.CoreNLPTokenizer;
-import de.versley.exml.annotators.NLP4JTokenizer;
+import de.versley.exml.annotators.nlp4j.NLP4JTokenizer;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
-import webcorp.tokens.TokenizerInterface;
 
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /** Tests for English tokenizers

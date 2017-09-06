@@ -1,7 +1,7 @@
-package de.versley.exml.de.versley.exml.config;
+package de.versley.exml.config;
 
 import de.versley.exml.annotators.Annotator;
-import de.versley.exml.config.GlobalConfig;
+import de.versley.exml.util.StreamUtils;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -35,7 +35,7 @@ public class TestConfig {
 
     @Test
     public void testSerializationFile() throws IOException, ClassNotFoundException {
-        InputStream example_in = TestUtils.openResource(getClass(), "example_config.yaml");
+        InputStream example_in = StreamUtils.openResource(getClass(), "example_config.yaml");
         GlobalConfig conf = GlobalConfig.load(example_in, "example_config.yaml");
         GlobalConfig conf2 = doRoundtrip(conf);
         assertEquals(conf.language, conf2.language);

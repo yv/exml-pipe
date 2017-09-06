@@ -1,4 +1,4 @@
-package de.versley.exml.de.versley.exml.config;
+package de.versley.exml.util;
 
 import exml.io.DocumentReader;
 import exml.tueba.TuebaDocument;
@@ -9,7 +9,7 @@ import java.io.InputStream;
 
 /** Utility class for test helpers
  */
-public class TestUtils {
+public class StreamUtils {
     public static InputStream openResource(Class cls, String fname) throws IOException {
         String packagePrefix = String.format("/%s/", cls.getPackage().getName().replace('.', '/'));
         InputStream stream=cls.getResourceAsStream(packagePrefix+fname);

@@ -1,4 +1,4 @@
-package de.versley.exml.annotators;
+package de.versley.exml.annotators.nlp4j;
 
 import edu.emory.mathcs.nlp.tokenization.EnglishTokenizer;
 import edu.emory.mathcs.nlp.tokenization.Token;

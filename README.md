@@ -3,15 +3,15 @@
 ExmlPipe is a library for building linguistic pipelines based on the ExportXMLv2
 format (used, e.g. by the TüBa-D/Z treebank from Tübingen University), which allows
 one to layer different annotations in a clean fashion. The concept is similar to
-DKPro in the UIMA ecosystem or GATE.
+DKPro in the UIMA ecosystem or GATE, but with a focus on ease of use and simplicity.
 
 The basic usage is as follows:
 ```
 shell$ ./gradlew installDist
-shell$ build/install/exml-pipe/bin/exml-pipe -lang en -pipeline corenlp input-dir output-dir
+shell$ build/install/exml-pipe/bin/exml-pipe -lang en -pipeline nlp4j input-dir output-dir
 ```
 which would take a collection of text files in `input-dir`, annotate it with
-the CoreNLP pipeline and put the result files in `output-dir`
+the NLP4J pipeline and put the result files in `output-dir`
 
 Most of the pipelines use components that need model files. The configuration file
 `exmlpipe_config.yaml` specifies the general directory where those can be found
