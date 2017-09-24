@@ -46,6 +46,18 @@ pipelines:
     properties:
       ner.applyNumericClassifiers: false
       ner.useSUTime: false
+  de.opennlp:
+  - !<de.versley.exml.annotators.opennlp.POSAnnotator>
+    modelName: "opennlp/de-pos-maxent.bin"
+  - !<de.versley.exml.annotators.IWNLPAnnotator>
+    lemma_file: "IWNLP.Lemmatizer_20170501.xml"
+    pos_file: "upos_map/de-tiger.map.txt"
+  - !<de.versley.exml.annotators.polart.SentimentAnnotator>
+    lexicon: "german.lex"
   de.remote:
   - !<de.versley.exml.annotators.JerseyAnnotator>
     pipeUrl: http://localhost:8181/pipe/de.mate
+  de.remote2:
+  - !<de.versley.exml.annotators.JerseyAnnotator>
+    pipeUrl: http://localhost:5001/pipe/de.spacy
+

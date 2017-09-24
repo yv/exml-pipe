@@ -1,5 +1,6 @@
 .gradle/
 .idea/
+jflex_output/
 build/
 lib/
 *.obj.gz

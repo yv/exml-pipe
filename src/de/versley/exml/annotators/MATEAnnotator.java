@@ -55,17 +55,27 @@ public class MATEAnnotator extends SimpleAnnotator {
 				data.plabels = new String[tokens.size()];
 				data.pheads = new int[tokens.size()];
 			}
-			_parser.apply(data);
-			for (int k=0; k < terms.size(); k++) {
-				TuebaTerminal tok = tree.getTerminals().get(k);
-				tok.setLemma(data.plemmas[k+1]);
-				tok.setCat(data.ppos[k+1]);
-				tok.setMorph(data.pfeats[k+1]);
-				tok.setSyn_label(data.plabels[k+1]);
-				if (data.pheads[k+1] <= 0) {
-					tok.setSyn_parent(null);
-				} else {
-					tok.setSyn_parent(terms.get(data.pheads[k+1]-1));
+			boolean done=false;
+			try {
+				_parser.apply(data);
+				System.err.println("Parsed.");
+				done=true;
+			} catch (NullPointerException ex) {
+				System.err.println("Parser error:"+tokens);
+				ex.printStackTrace();
+			}
+			if (done) {
+				for (int k = 0; k < terms.size(); k++) {
+					TuebaTerminal tok = tree.getTerminals().get(k);
+					tok.setLemma(data.plemmas[k + 1]);
+					tok.setCat(data.ppos[k + 1]);
+					tok.setMorph(data.pfeats[k + 1]);
+					tok.setSyn_label(data.plabels[k + 1]);
+					if (data.pheads[k + 1] <= 0) {
+						tok.setSyn_parent(null);
+					} else {
+						tok.setSyn_parent(terms.get(data.pheads[k + 1] - 1));
+					}
 				}
 			}
 		}

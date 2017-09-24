@@ -120,6 +120,12 @@ Candito M.-H., Crabbé B., and Denis P., 2010.
 Statistical French dependency parsing: treebank conversion and first results,
 Proceedings of LREC'2010, La Valletta, Malta
 
+**NLP4J parser**
+
+Jinho Choi, 2016
+Dynamic Feature Induction: The Last Gist to the State-of-the-Art
+Proceedings of NAACL 2016, San Diego, CA
+
 **CoreNLP and components**
 
 The CoreNLP pipeline architecture is described in:

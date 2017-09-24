@@ -14,6 +14,15 @@ import java.util.List;
 @RunWith(value=Parameterized.class)
 public class TestEnglish extends TestTokenizer {
 
+    /* TODO glued-together tokens
+       They did something about their new guest.The staff ranged from indifferent to not helpful.
+       No special requests.TV hard to use and iPad sound dock not functioning.
+       Driver was waiting for me on arrival.Checkin was easy but ...
+       The wakeup call was forgotten.The bathroom facilities were great.
+
+       recognize as [a-z]+\.[A-Z][a-z]+
+     */
+
     @Test
     public void testEnglish() {
         // CoreNLP's PTBTokenizer normalizes " to `` and '', any test including it will fail.
