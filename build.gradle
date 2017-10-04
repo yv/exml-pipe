@@ -64,6 +64,9 @@ task flexSrc {
         ant.jflex(
                 file: 'jflex_src/tokens_de.jflex',
                 destdir: 'jflex_output')
+        ant.jflex(
+                file: 'jflex_src/tokens_en.jflex',
+                destdir: 'jflex_output')
     }
 }
 
@@ -108,7 +111,7 @@ dependencies {
     compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.25.1'
     compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.25.1'
     testCompile 'junit:junit:4.12'
-    runtime 'com.lihaoyi:ammonite-repl_2.11.7:0.4.7'
+    // runtime 'com.lihaoyi:ammonite-repl_2.11.7:0.4.7'
 }
 
 task javadocJar(type: Jar) {
@@ -158,14 +161,14 @@ publishing {
         maven(MavenPublication) {
             groupId 'de.versley'
             artifactId 'exml-pipe'
-            version '2.0.3'
+            version '2.1.1'
             from components.java
         }
     }
 }
 
-task ammonite(type: JavaExec, dependsOn: classes){
-    main = 'ammonite.repl.Repl'
-    classpath = configurations.runtime + sourceSets.main.output + sourceSets.test.output
-    standardInput = System.in
-}
+// task ammonite(type: JavaExec, dependsOn: classes){
+//    main = 'ammonite.repl.Repl'
+//     classpath = configurations.runtime + sourceSets.main.output + sourceSets.test.output
+//    standardInput = System.in
+// }

@@ -13,7 +13,7 @@ Januar|Februar|März|April|Mai|Juni|Juli
 August|September|Oktober|November|Dezember|[0-9]+
 
 >*> Abbrev
-[A-Za-z]|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Oct|Nov|Dec
+[A-Za-z]|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Oct|Okt|Nov|Dec
 Mo|Di|Mi|Do|Fr|Sa
 <L>+(str|korr|fg|b[rg])
 (Dr|Dipl)\.?-(Ing|Inf)

@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
+import webcorp.tokens.JFlexTokenizer;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public class TestEnglish extends TestTokenizer {
 
     @Test
     public void testBoundaries() {
-        //assertSentence(tok, "I'll take model A.| In variant 12.|");
+        assertSentence(tok, "I'll take model A.| In variant 12.|");
         assertSentence(tok, "Alfred E. Neumann recommends this.| Yeah.|");
         assertSentence(tok, "Let's meet at the YMCA.| Why not?|");
         assertSentence(tok, "This is a sentence.| This is a sentence too.|");
@@ -43,6 +44,7 @@ public class TestEnglish extends TestTokenizer {
     public static List<Object[]> getTokenizers() {
         return withTokenizers(
                 new CoreNLPTokenizer(),
-                new NLP4JTokenizer());
+                new NLP4JTokenizer(),
+                new JFlexTokenizer("en"));
     }
 }

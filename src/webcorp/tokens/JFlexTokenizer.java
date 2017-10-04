@@ -25,6 +25,8 @@ public class JFlexTokenizer implements TokenizerInterface {
 	public static final int ABBREV = 2;
 	public static final int WEAK_ABBREV = 3;
 
+	public final String language;
+
     private static Map<String, Pattern> compilePatterns(BufferedReader reader) throws IOException {
         Map<String, Pattern> result = new HashMap<>();
         StringBuffer buf=new StringBuffer();
@@ -65,6 +67,7 @@ public class JFlexTokenizer implements TokenizerInterface {
             _weak_abbrev_re = patterns.get("WeakAbbrev");
             _sent_start_re = patterns.get("SentStart");
             _konj_re = patterns.get("Conj");
+            language = lang;
         } catch (IOException e) {
             throw new RuntimeException("Cannot load patterns", e);
         }
@@ -222,7 +225,14 @@ public class JFlexTokenizer implements TokenizerInterface {
 	 */
 	public List<Token> tokenize(String input, int offset) {
 		List<Token> result = new ArrayList<Token>();
-		TokenScanner scanner = new TokenScannerDE(new StringReader(input));
+		TokenScanner scanner;
+		if ("de".equals(language)) {
+            scanner = new TokenScannerDE(new StringReader(input));
+        } else if ("en".equals(language)) {
+		    scanner = new TokenScannerEN(new StringReader(input));
+        } else {
+		    throw new IllegalStateException("No scanner for language:"+language);
+        }
 		Token tok;
         try {
             while ((tok = scanner.yylex()) != null) {

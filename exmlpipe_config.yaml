@@ -60,4 +60,3 @@ pipelines:
   de.remote2:
   - !<de.versley.exml.annotators.JerseyAnnotator>
     pipeUrl: http://localhost:5001/pipe/de.spacy
-

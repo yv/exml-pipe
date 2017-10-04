@@ -74,11 +74,19 @@ public class GlobalConfig extends SimpleModule {
 	    result.add(new SegmentImporter());
 	    return result;
     }
-	
+
+	/** returns the root directory where the models are located
+	 *
+	 * @return a directory as File instance
+	 */
 	public File computeModelDir() {
 		String s = modelDir;
 		s = s.replace("${user.home}", System.getProperty("user.home"));
 		s = s.replace("${lang}", language);
+		String env_dir = System.getenv("EXMLPIPE_MODEL_DIR");
+		if (env_dir != null) {
+			s = env_dir;
+		}
 		return new File(s);
 	}
 	
