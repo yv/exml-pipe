@@ -96,6 +96,7 @@ public class JFlexTokenizer implements TokenizerInterface {
 	private boolean plausibleOrdinal(int pos, List<Token> result) {
 		String s_post;
 		boolean num_post;
+		if (!"de".equals(language)) return false;
 		if (pos < result.size() - 1) {
 		    Token tokNext = result.get(pos + 1);
 			s_post = tokNext.value;
@@ -287,32 +288,34 @@ public class JFlexTokenizer implements TokenizerInterface {
 		// Step 2b: fix sentence boundaries for quotes and parens
         fixSentBoundaries(result);
 		// Step 3: reattach some clitics (Hans', Disney's)
-		tok = result.get(0);
-		for (int i = 1; i < result.size(); i++) {
-			Token tokNext = result.get(i);
-			if (tok.end == tokNext.start && tokNext.value.charAt(0) == '\'') {
-				boolean attach = false;
-				if (tokNext.value.length() == 1) {
-					char c = tok.value.charAt(tok.value.length() - 1);
-					if (c == 'b' || c == 't' || c == 's') {
-						attach = true;
-					}
-				} else if (tokNext.value.length() == 2
-						&& (Character.toLowerCase(tokNext.value.charAt(1)) == 's')) {
-					attach = Character.isUpperCase(tok.value.charAt(0));
-				}
-				// System.err.format("%s|%s\n", tok.value,tokNext.value);
-				if (attach) {
-					tok.value += tokNext.value;
-					tok.end = tokNext.end;
-					result.remove(i);
-					i--;
-				} else {
-					tok = tokNext;
-				}
-			} else {
-				tok = tokNext;
-			}
+        if ("de".equals(language)) {
+            tok = result.get(0);
+            for (int i = 1; i < result.size(); i++) {
+                Token tokNext = result.get(i);
+                if (tok.end == tokNext.start && tokNext.value.charAt(0) == '\'') {
+                    boolean attach = false;
+                    if (tokNext.value.length() == 1) {
+                        char c = tok.value.charAt(tok.value.length() - 1);
+                        if (c == 'b' || c == 't' || c == 's') {
+                            attach = true;
+                        }
+                    } else if (tokNext.value.length() == 2
+                            && (Character.toLowerCase(tokNext.value.charAt(1)) == 's')) {
+                        attach = Character.isUpperCase(tok.value.charAt(0));
+                    }
+                    // System.err.format("%s|%s\n", tok.value,tokNext.value);
+                    if (attach) {
+                        tok.value += tokNext.value;
+                        tok.end = tokNext.end;
+                        result.remove(i);
+                        i--;
+                    } else {
+                        tok = tokNext;
+                    }
+                } else {
+                    tok = tokNext;
+                }
+            }
 		}
 		// Step 4: reattach some separated dash-compounds
 		// (Telekomwimpel-|schwingenden)
@@ -332,4 +335,16 @@ public class JFlexTokenizer implements TokenizerInterface {
 		}
 		return result;
 	}
+
+	public static void main(String[] args) {
+	    TokenScanner scanner = new TokenScannerEN(new StringReader("He's a Ph.D. from the U.S."));
+	    Token tok;
+        try {
+            while ((tok=scanner.yylex()) != null) {
+                System.err.println("TOK:"+tok.value);
+}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

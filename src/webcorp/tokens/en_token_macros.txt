@@ -13,9 +13,11 @@ and|or|until
 >*> Abbrev
 Jan|Feb|Mar|Apr|Jun|Jul|Aug|Oct|Nov|Dec
 Mon|Tue|Wed|Thu|Fri|Sat|Sun
+M\.Sc|Ph\.D
 \d+-?tlg
 (\p{L}+-)*(\p{L}+(nr|str|korr|fg|b[rg])|[Nn]r)
 (Dr|Dipl)\.?-(Ing|Inf)
+agt|asst|a/c|afaik|bus|bldg|Corp|[Dd]e?pt|disc|[Ii]nc|[Ll]td|mfg
 .+/[mM]in|Abb|Art|Abs|Anm|autom|AZ|Az|B/s|Bd|Ber|[Bb]etr|BGBl|bzw
 Chr|Co|Corp|[dD]ipl|[dD]r|Ebb?|Econ|[Ee]ngl?|el|Forts|[Hh]rsg|II|Inc|J(hr)?h(dt)?|[Jj]r|Ltd|Kl|Max
 Mill|Min|Mio|Mr|Mrd|M[Ww][Ss]t|Nat|Nr|Oldb|Par|Päd|Pf|(Pf|M)gff?|[Pp]hil|Pol|Proc|Prof

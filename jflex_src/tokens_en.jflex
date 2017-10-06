@@ -36,27 +36,29 @@ XY=§\d+|\d+[x:/]\d+|\p{Lu}+\d+|{AlNum}+([_-]{AlNum}+)*\.(jpe?g|gif|docx?|xlsx?|
 ArabicNumber=\p{Nd}+(\.\p{Nd}{3})*(,\p{Nd}+)?
 RomanNumber=II|III|IV|V|X+V?I*|VI+
 ISODate=20\d\d-[0-1]\d-[0-3]\d
-KnownDomain=((\w+-)*\w+)\.(com|net|org|gov|de|at|info|biz|ly|tv|ag)
+KnownDomain=((\w+-)*\w+)\.(com|mil|net|org|gov|de|at|info|biz|ly|tv|ag|(ac|co)\.uk)
+MWAbbrev=M\.Sc\.|Ph\.D\.|U\.S\.
 PathElement=\w+([-_]\w+)*
 UrlPath=\/({PathElement}\/)*({PathElement}(\.\w+)?)
 UserName=(\p{L}+_)*\p{L}+\d*
 Prefix={AlNum}+(\.|[:/])?({AlNum}+)?-|\({AlNum}+-\)|{DQuote}{AlNum}+{DQuote}-|{XY}-
 DigitWord=(19|20)?[0-9][0-9]er\p{L}*
 DigitName=1822direkt|3dfx|t@x|h2g2|t3n|m4e|([Nn]eo|nd)4[Jj]|S&P
-Verb=[Dd]o|[Dd]id|can|could|must|ought|shall|should|will|would|has|had|is|was|need
+Verb=[Dd]o|[Dd]id|[Cc]an|[Cc]ould|[Mm]ust|ought|shall|should|will|would|has|had|is|was|need
 %%
-(ca|wo) / "n't"           { return mkToken(); }
+(ca|wo|ai) / "n't"        { return mkToken(); }
 {Verb} / "n't"            { return mkToken(); }
 can / not                 { return mkToken(); }
 gim / me                  { return mkToken(); }
 gon / na                  { return mkToken(); }
 got / ta                  { return mkToken(); }
 wan / na                  { return mkToken(); }
-"n't"                     { return mkToken(); }
-"'"(ll|re|ve|s|d)         { return mkToken(); }
-"'"[Tt] / is              { return mkToken(); }
-"'"[Tt] / was             { return mkToken(); }
-(d|dell|nell){SQuote}           { return mkToken(); }
+{MWAbbrev}                { return mkToken(); }
+n{SQuote}t                     { return mkToken(); }
+{SQuote}(ll|re|ve|s|d)         { return mkToken(); }
+{SQuote}[Tt] / is              { return mkToken(); }
+{SQuote}[Tt] / was             { return mkToken(); }
+(l|d|dell|nell){SQuote}           { return mkToken(); }
 {DQuote}                        { return mkToken(TYPE_PUNCT_QUOTE); }
 @{UserName}               { return mkToken(); }
 @{DigitName}              { return mkToken(); }
