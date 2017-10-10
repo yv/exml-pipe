@@ -5,6 +5,7 @@ import de.versley.exml.config.FileReference;
 import de.versley.iwnlp.MappingLemmatizer;
 import exml.tueba.TuebaDocument;
 import exml.tueba.TuebaTerminal;
+import org.eclipse.collections.api.map.primitive.ObjectIntMap;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,9 +18,12 @@ public class IWNLPAnnotator extends SimpleAnnotator {
     private static Pattern uc_tags = Pattern.compile("NN|NE");
     public FileReference lemma_file;
     public FileReference pos_file;
+    public FileReference freq_file;
 
     private transient MappingLemmatizer lemmatizer;
     private transient Map<String, String> pos_map;
+    private transient ObjectIntMap<String> freq_map;
+
 
     /**
      * Maps a string to a plausible form for a noun.
@@ -40,6 +44,9 @@ public class IWNLPAnnotator extends SimpleAnnotator {
         if (lemmatizer == null) {
             try (InputStream dataIn = lemma_file.toStream()) {
                 lemmatizer = MappingLemmatizer.load(dataIn);
+                if (freq_file != null) {
+                    lemmatizer.loadFrequencies(freq_file.toStream());
+                }
                 pos_map = new HashMap<String,String>();
                 if (pos_file != null) {
                     BufferedReader rd = new BufferedReader(new InputStreamReader(pos_file.toStream()));

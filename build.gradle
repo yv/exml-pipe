@@ -1,6 +1,5 @@
 // Targets:
 // publishToMavenLocal - installs the package to MavenLocal
-// shadowJar - creates a fat jar with everything in build/libs
 
 
 // Part 1. setting up things
@@ -110,6 +109,8 @@ dependencies {
     compile group: 'org.glassfish.grizzly', name: 'grizzly-http-server', version: '2.4.0'
     compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.25.1'
     compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.25.1'
+    compile group: 'org.eclipse.collections', name: 'eclipse-collections-api', version: '8.1.0'
+    compile group: 'org.eclipse.collections', name: 'eclipse-collections', version: '8.1.0'
     testCompile 'junit:junit:4.12'
     // runtime 'com.lihaoyi:ammonite-repl_2.11.7:0.4.7'
 }
@@ -161,14 +162,8 @@ publishing {
         maven(MavenPublication) {
             groupId 'de.versley'
             artifactId 'exml-pipe'
-            version '2.1.1'
+            version '2.2.0'
             from components.java
         }
     }
 }
-
-// task ammonite(type: JavaExec, dependsOn: classes){
-//    main = 'ammonite.repl.Repl'
-//     classpath = configurations.runtime + sourceSets.main.output + sourceSets.test.output
-//    standardInput = System.in
-// }

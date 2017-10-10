@@ -1,5 +1,6 @@
 package de.versley.iwnlp;
 
+import org.eclipse.collections.impl.map.mutable.primitive.ObjectIntHashMap;
 import org.jibx.runtime.BindingDirectory;
 import org.jibx.runtime.IBindingFactory;
 import org.jibx.runtime.IUnmarshallingContext;
@@ -13,7 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 public class MappingLemmatizer {
-    Map<String, Root.WordForm> _mapping;
+    private Map<String, Root.WordForm> _mapping;
+    private ObjectIntHashMap<String> _freqs;
     private static IBindingFactory bfact;
 
     static {
@@ -43,6 +45,7 @@ public class MappingLemmatizer {
     public MappingLemmatizer(Root mappingOrig) {
         Map<String, String> tagMap = new HashMap<>();
         _mapping = new HashMap<String, Root.WordForm>();
+        _freqs = new ObjectIntHashMap<>();
         for (Root.WordForm form: mappingOrig.getWordFormList()) {
             _mapping.put(form.getForm(), form);
             // convert tags to uppercase
@@ -83,11 +86,17 @@ public class MappingLemmatizer {
     public String lemmatizeSingle(String form, String tag, boolean addMarker) {
         Root.WordForm wf = _mapping.get(form.toLowerCase());
         String found = null;
+        int freq_found = -1;
         if (wf != null) {
             int match_score = -1;
             for (Root.WordForm.LemmatizerItem item : wf.getLemmaList()) {
                 if (tag != null && tag.equals(item.getPOS())) {
-                    found = item.getLemma();
+                    String s_cand = item.getLemma();
+                    int freq_cand = _freqs.get(s_cand);
+                    if (match_score < 1 || freq_cand > freq_found) {
+                        found = s_cand;
+                        freq_found = freq_cand;
+                    }
                     match_score = 1;
                 } else if (match_score < 1 && !"X".equals(item.getPOS())) {
                     found = addMarker?"?"+item.getLemma():item.getLemma();
@@ -111,6 +120,25 @@ public class MappingLemmatizer {
         return result;
     }
 
+    public void loadFrequencies(InputStream input) {
+        BufferedReader rd = new BufferedReader(new InputStreamReader(input, Charset.forName("UTF-8")));
+        String line;
+        try {
+            while ((line = rd.readLine()) != null) {
+                String[] fields = line.split("\\s+");
+                if ("f_raw".equals(fields[0]) || fields.length != 7) {
+                    continue;
+                }
+                int f_raw = Integer.parseInt(fields[0]);
+                String word = fields[6];
+                _freqs.put(word, f_raw);
+
+            }
+        } catch (IOException ex) {
+            throw new RuntimeException("Cannot load frequencies", ex);
+        }
+    }
+
     public static MappingLemmatizer load(InputStream inputStream) {
         try {
             IUnmarshallingContext uctx = bfact.createUnmarshallingContext();
@@ -121,10 +149,19 @@ public class MappingLemmatizer {
         }
     }
 
-    public static void main(String[] args) {
+    public static MappingLemmatizer load(InputStream inputStream, InputStream freqStream) {
+        MappingLemmatizer result = load(inputStream);
+        result.loadFrequencies(freqStream);
+        return result;
+    }
+
+        public static void main(String[] args) {
         try {
             MappingLemmatizer lemmatizer = load(
                     new FileInputStream(args[0]));
+            if (args.length > 1) {
+                lemmatizer.loadFrequencies(new FileInputStream(args[1]));
+            }
             String line;
             BufferedReader rd = new BufferedReader(new InputStreamReader(System.in, Charset.forName("UTF-8")));
             while ((line = rd.readLine()) != null) {
