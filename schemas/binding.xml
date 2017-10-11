@@ -1,0 +1,16 @@
+<binding name="binding" package="de.versley.iwnlp" trim-whitespace="true">
+  <mapping class="de.versley.iwnlp.Root" name="root">
+    <collection get-method="getWordFormList" set-method="setWordFormList" create-type="java.util.ArrayList">
+      <structure type="de.versley.iwnlp.Root$WordForm" name="WordForm">
+        <value style="element" name="Form" get-method="getForm" set-method="setForm"/>
+        <collection get-method="getLemmaList" set-method="setLemmaList" name="Lemmas" create-type="java.util.ArrayList">
+          <structure type="de.versley.iwnlp.Root$WordForm$LemmatizerItem" name="LemmatizerItem">
+            <value style="element" name="POS" get-method="getPOS" set-method="setPOS"/>
+            <value style="element" name="Form" get-method="getForm" set-method="setForm"/>
+            <value style="element" name="Lemma" get-method="getLemma" set-method="setLemma"/>
+          </structure>
+        </collection>
+      </structure>
+    </collection>
+  </mapping>
+</binding>

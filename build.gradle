@@ -126,7 +126,7 @@ task sourcesJar(type: Jar) {
 }
 
 task wrapper(type: Wrapper) {
-    version = '3.5'
+    gradleVersion = '3.5'
 }
 
 // Part 3. Packaging
@@ -164,6 +164,13 @@ publishing {
             artifactId 'exml-pipe'
             version '2.2.0'
             from components.java
+
+            artifact sourcesJar {
+                classifier "sources"
+            }
+            artifact javadocJar {
+                classifier "javadoc"
+            }
         }
     }
 }
