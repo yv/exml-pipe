@@ -1,176 +1,181 @@
 // Targets:
 // publishToMavenLocal - installs the package to MavenLocal
 
+def exml_version = '2.2.0'
 
 // Part 1. setting up things
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.0'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-    }
-}
+subprojects {
+  apply plugin: 'java'
+  apply plugin: 'maven-publish'
 
-apply plugin: 'java'
-apply plugin: 'application'
-apply plugin: 'maven-publish'
-apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'com.jfrog.bintray'
+  repositories {
+      mavenCentral()
+      jcenter()
+      maven {
+	  url  "http://dl.bintray.com/yversley/com.github.yv"
+      }
+  }
 
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src', 'jflex_output']
-        }
-        resources {
-            srcDirs = ['src']
-            include '**/*.txt'
-            include '**/*.xml'
-        }
-    }
-    test {
-        java {
-            srcDirs = ['test']
-        }
-        resources {
-            srcDirs = ['test']
-            include '**/*.yaml'
-        }
-    }
-}
+  task javadocJar(type: Jar) {
+      classifier = 'javadoc'
+      from javadoc
+  }
 
-repositories {
-    mavenCentral()
-    jcenter()
-    maven {
-        url  "http://dl.bintray.com/yversley/com.github.yv"
-    }
-}
+  task sourcesJar(type: Jar) {
+      classifier = 'sources'
+      from sourceSets.main.allSource
+  }
 
-configurations {
-    lex
 }
 
 // Part 2. Special tasks
 
-task flexSrc {
-    doLast {
-        ant.taskdef(name: 'jflex',
-                classname: 'jflex.anttask.JFlexTask',
-                classpath: configurations.lex.asPath)
-        ant.jflex(
-                file: 'jflex_src/tokens_de.jflex',
-                destdir: 'jflex_output')
-        ant.jflex(
-                file: 'jflex_src/tokens_en.jflex',
-                destdir: 'jflex_output')
+project(':exml-pipe-minimal') {
+  sourceSets {
+      main {
+          java {
+              srcDirs = ['src/main/java', 'jflex_output']
+          }
+      }
+  }
+
+  configurations {
+      lex
+  }
+
+
+  task flexSrc {
+      doLast {
+	  ant.taskdef(name: 'jflex',
+		  classname: 'jflex.anttask.JFlexTask',
+		  classpath: configurations.lex.asPath)
+	  ant.jflex(
+		  file: 'jflex_src/tokens_de.jflex',
+		  destdir: 'jflex_output')
+	  ant.jflex(
+		  file: 'jflex_src/tokens_en.jflex',
+		  destdir: 'jflex_output')
+      }
+  }
+
+  task jibxBinding(dependsOn: 'build', type: JavaExec) {
+      main = 'org.jibx.binding.Compile'
+      classpath = sourceSets.main.runtimeClasspath
+      args = ['schemas/binding.xml']
+
+  }
+
+  compileJava.dependsOn(flexSrc)
+  compileJava.doLast {
+      tasks.jibxBinding.execute()
+  }
+
+  dependencies {
+      lex group: 'de.jflex', name: 'jflex', version: '1.6.1'
+      compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
+      compile group: 'com.google.re2j', name: 're2j', version: '1.1'
+      compile group: 'org.jibx', name: 'jibx-run', version: '1.3.1'
+      compile group: 'org.jibx', name: 'jibx-bind', version: '1.3.1'
+      compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.4.4'
+      compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.4.4'
+      compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.4.4'
+      compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version:'2.4.4'
+      compile group: 'org.apache.ant', name: 'ant', version: '1.9.4'
+      compile group: 'de.versley', name: 'exportxml', version: '1.0.8'
+      compile group: 'edu.emory.mathcs.nlp', name: 'nlp4j-tokenization', version: '1.1.2'
+      compile group: 'edu.emory.mathcs.nlp', name: 'nlp4j-api', version: '1.1.3'
+      compile group: 'edu.emory.mathcs.nlp', name: 'nlp4j-english', version: '1.1.3'
+      compile group: 'org.apache.opennlp', name: 'opennlp-tools', 'version': '1.8.2'
+      compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+      compile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.25.1'
+      compile group: 'org.glassfish.jersey.core', name: 'jersey-server', version: '2.25.1'
+      compile group: 'org.glassfish.grizzly', name: 'grizzly-http-server', version: '2.4.0'
+      compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.25.1'
+      compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.25.1'
+      compile group: 'org.eclipse.collections', name: 'eclipse-collections-api', version: '8.1.0'
+      compile group: 'org.eclipse.collections', name: 'eclipse-collections', version: '8.1.0'
+      testCompile 'junit:junit:4.12'
+      // runtime 'com.lihaoyi:ammonite-repl_2.11.7:0.4.7'
+  }
+  artifacts {
+      archives javadocJar, sourcesJar
+  }
+
+  publishing {
+      publications {
+          maven(MavenPublication) {
+              groupId 'de.versley'
+              artifactId 'exml-pipe-minimal'
+              version exml_version
+              from components.java
+              artifact sourcesJar {
+                  classifier "sources"
+              }
+              artifact javadocJar {
+                  classifier "javadoc"
+              }
+          }
+      }
+  }
+}
+
+project(':exml-pipe') {
+  apply plugin: 'application'
+  dependencies {
+      compile project(':exml-pipe-minimal')
+      compile group: 'com.github.yv', name: 'mate-parser', version: '1.30'
+      compile group: 'edu.berkeley.nlp', name: 'berkeleyparser', version:'r32'
+      compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.8.0', transitive:false
+      compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.8.0', classifier: 'models'
+      compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.8.0', classifier: 'models-german'
+      compile group: 'edu.emory.mathcs.nlp', name: 'nlp4j-english', version: '1.1.3'
+      testCompile 'junit:junit:4.12'
+      // runtime 'com.lihaoyi:ammonite-repl_2.11.7:0.4.7'
+  }
+  mainClassName = 'de.versley.exml.pipe.TextToEXML'
+  artifacts {
+      archives javadocJar, sourcesJar
+  }
+
+  publishing {
+      publications {
+          maven(MavenPublication) {
+              groupId 'de.versley'
+              artifactId 'exml-pipe'
+              version exml_version
+              from components.java
+              artifact sourcesJar {
+                  classifier "sources"
+              }
+              artifact javadocJar {
+                  classifier "javadoc"
+              }
+          }
+      }
+  }
+
+    task createAllStartScripts() {
+        doLast {}
     }
-}
 
-task jibxBinding(dependsOn: 'build', type: JavaExec) {
-    main = 'org.jibx.binding.Compile'
-    classpath = sourceSets.main.runtimeClasspath
-    args = ['schemas/binding.xml']
-
-}
-
-compileJava.dependsOn(flexSrc)
-compileJava.doLast {
-    tasks.jibxBinding.execute()
-}
-
-dependencies {
-    lex group: 'de.jflex', name: 'jflex', version: '1.6.1'
-    compile group: 'commons-cli', name: 'commons-cli', version: '1.2'
-    compile group: 'com.google.re2j', name: 're2j', version: '1.1'
-    compile group: 'org.incava', name: 'java-diff', version: '1.1'
-    compile group: 'org.jibx', name: 'jibx-run', version: '1.3.1'
-    compile group: 'org.jibx', name: 'jibx-bind', version: '1.3.1'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.4.4'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.4.4'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version:'2.4.4'
-    compile group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-yaml', version:'2.4.4'
-    compile group: 'org.apache.ant', name: 'ant', version: '1.9.4'
-    compile group: 'de.versley', name: 'exportxml', version: '1.0.8'
-    compile group: 'edu.emory.mathcs.nlp', name: 'nlp4j-tokenization', version: '1.1.2'
-    compile group: 'com.github.yv', name: 'mate-parser', version: '1.30'
-    compile group: 'edu.berkeley.nlp', name: 'berkeleyparser', version:'r32'
-    compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.8.0', transitive:false
-    compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.8.0', classifier: 'models'
-    compile group: 'edu.stanford.nlp', name: 'stanford-corenlp', version: '3.8.0', classifier: 'models-german'
-    compile group: 'edu.emory.mathcs.nlp', name: 'nlp4j-api', version: '1.1.3'
-    compile group: 'edu.emory.mathcs.nlp', name: 'nlp4j-english', version: '1.1.3'
-    compile group: 'org.apache.opennlp', name: 'opennlp-tools', 'version': '1.8.2'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
-    compile group: 'org.glassfish.jersey.core', name: 'jersey-client', version: '2.25.1'
-    compile group: 'org.glassfish.jersey.core', name: 'jersey-server', version: '2.25.1'
-    compile group: 'org.glassfish.grizzly', name: 'grizzly-http-server', version: '2.4.0'
-    compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-grizzly2-http', version: '2.25.1'
-    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version: '2.25.1'
-    compile group: 'org.eclipse.collections', name: 'eclipse-collections-api', version: '8.1.0'
-    compile group: 'org.eclipse.collections', name: 'eclipse-collections', version: '8.1.0'
-    testCompile 'junit:junit:4.12'
-    // runtime 'com.lihaoyi:ammonite-repl_2.11.7:0.4.7'
-}
-
-task javadocJar(type: Jar) {
-    classifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
+    def scripts = [ 'exml-pipe': 'de.versley.exml.pipe.TextToEXML',
+                    'exml-server':'de.versley.exml.service.PipelineResource'
+    ]
+    scripts.each() { scriptName, className ->
+        def t = tasks.create(name: scriptName+'StartScript', type: CreateStartScripts) {
+            mainClassName = className
+            applicationName = scriptName
+            outputDir = new File(project.buildDir, 'scripts')
+            classpath = jar.outputs.files + project.configurations.runtime
+        }
+        applicationDistribution.into("bin") {
+            from(t)
+            fileMode = 0755
+        }
+        createAllStartScripts.dependsOn(t)
+    }
 }
 
 task wrapper(type: Wrapper) {
     gradleVersion = '3.5'
-}
-
-// Part 3. Packaging
-
-mainClassName = 'de.versley.exml.pipe.TextToEXML'
-
-task createAllStartScripts() {
-    doLast {}
-}
-
-def scripts = [ 'exml-pipe': 'de.versley.exml.pipe.TextToEXML',
-                'exml-server':'de.versley.exml.service.PipelineResource'
-]
-scripts.each() { scriptName, className ->
-    def t = tasks.create(name: scriptName+'StartScript', type: CreateStartScripts) {
-        mainClassName = className
-        applicationName = scriptName
-        outputDir = new File(project.buildDir, 'scripts')
-        classpath = jar.outputs.files + project.configurations.runtime
-    }
-    applicationDistribution.into("bin") {
-        from(t)
-        fileMode = 0755
-    }
-    createAllStartScripts.dependsOn(t)
-}
-artifacts {
-    archives javadocJar, sourcesJar
-}
-
-publishing {
-    publications {
-        maven(MavenPublication) {
-            groupId 'de.versley'
-            artifactId 'exml-pipe'
-            version '2.2.0'
-            from components.java
-
-            artifact sourcesJar {
-                classifier "sources"
-            }
-            artifact javadocJar {
-                classifier "javadoc"
-            }
-        }
-    }
 }
