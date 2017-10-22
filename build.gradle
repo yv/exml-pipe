@@ -119,6 +119,14 @@ project(':exml-pipe-minimal') {
   }
 }
 
+project(':termfinder') {
+    apply plugin: 'application'
+    dependencies {
+        compile project(':exml-pipe-minimal')
+    }
+    mainClassName='de.versley.terms.ExtractTerms'
+}
+
 project(':exml-pipe') {
   apply plugin: 'application'
   dependencies {

@@ -1,0 +1,38 @@
+## patterns for JFlexTokenizer
+>*> OrdNoun
+ZZZ-ZZZ
+>*> OrdGen
+ZZZ-ZZZ
+
+>*> Conj
+and|or|until
+
+## TODO fill in abbreviations for English
+>*> WeakAbbrev
+[A-Za-z]
+>*> Abbrev
+Jan|Feb|Mar|Apr|Jun|Jul|Aug|Oct|Nov|Dec
+Mon|Tue|Wed|Thu|Fri|Sat|Sun
+M\.Sc|Ph\.D
+\d+-?tlg
+(\p{L}+-)*(\p{L}+(nr|str|korr|fg|b[rg])|[Nn]r)
+(Dr|Dipl)\.?-(Ing|Inf)
+agt|asst|a/c|afaik|bus|bldg|Corp|[Dd]e?pt|disc|[Ii]nc|[Ll]td|mfg
+.+/[mM]in|Abb|Art|Abs|Anm|autom|AZ|Az|B/s|Bd|Ber|[Bb]etr|BGBl|bzw
+Chr|Co|Corp|[dD]ipl|[dD]r|Ebb?|Econ|[Ee]ngl?|el|Forts|[Hh]rsg|II|Inc|J(hr)?h(dt)?|[Jj]r|Ltd|Kl|Max
+Mill|Min|Mio|Mr|Mrd|M[Ww][Ss]t|Nat|Nr|Oldb|Par|Päd|Pf|(Pf|M)gff?|[Pp]hil|Pol|Proc|Prof
+[Rr]ed|Sci?|[Ss]ch|[Ss]ek|St|Std|Stk|.*Str|[Tt]el|[Tt]h|[Tt]heol|Tsd|USt|
+Ver|[Vv](er)?gl|Vol|Vors|Wh|Zi|[Zz]it
+[A-ZÄÖÜ]\\.-[A-ZÄÖÜ]|adj|al|allg|bez|bspw?|bzw|ca|co|div|entspr|etc|ect|evtl|excl
+exkl|<Nd>*ff|engl|getr|ggf|in[ck]l|insb|[ji]ur|jr|lt|li|lic|max|min|mind|mtl|mona?tl|mögl
+nwtg|oec|op|re|ret|resp|soc|sog|univ|überd|usf|usw|vs|wg|zusätzl|zzgl
+
+>*> LCName
+taz|dpa|1822direkt|3dfx|adidas|h2g2|heise|i-mode|id|t@x|tesion
+mediantis|debitel|speedlink|t3n
+
+>*> PreOrd
+ZZZ-ZZZ
+
+>*> SentStart
+A|The|Did|Had|In|At|For

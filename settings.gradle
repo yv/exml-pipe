@@ -1,3 +1,3 @@
 rootProject.name = 'exml-pipe-multi'
 
-include ":exml-pipe-minimal", ":exml-pipe"
+include ":exml-pipe-minimal", ":exml-pipe", ":termfinder"

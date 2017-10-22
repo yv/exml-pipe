@@ -1,0 +1,62 @@
+>*> OrdNoun
+Meisterschaft|Generation|Gipfel|Jahr(es)?|Jahrhunderts?
+Kammer|Kl|Klasse|Kongreß|Konferenz|Liga|^Mal|Minute|Mitarbeiter
+Mitglied|OG|Obergeschoss|Order|Platz
+Quartal|Programm|Rang|Runde|Semester
+Senat|Sinfonie|Sitzung|Stelle
+Stock|Stockwerk|Strafkammer|Studie|Symphonie
+Tag|Tagung|Update|Veranstaltung
+Verordnung|Version|Vertrag|Wettbewerb|Zivilkammer
+Berliner|Bremer|Hamburger
+Internationale|Internationalen|Deutschen
+Januar|Februar|März|April|Mai|Juni|Juli
+August|September|Oktober|November|Dezember|[0-9]+
+
+>*> Abbrev
+[A-Za-z]|Jan|Feb|Mar|Apr|Jun|Jul|Aug|Oct|Okt|Nov|Dec
+Mo|Di|Mi|Do|Fr|Sa
+<L>+(str|korr|fg|b[rg])
+(Dr|Dipl)\.?-(Ing|Inf)
+.+/[mM]in|Art|Abs|Anm|AZ|Az|B/s|Bd|Ber|[Bb]etr|BGBl|bzw
+Chr|Co|Corp|Dipl|Dr|Ebb?|Engl|[Hh]rsg|II|Inc|Jh(dt)?|[Jj]r|Ltd|Kl|Max
+Mill|Min|Mio|Mr|Mrd|Mw[Ss]t|Nr|Par|Pf|(Pf|M)gff?|[Pp]hil|Pol|Proc|Prof|Red
+[Ss]ch|Sek|St|Std|.*Str|[Tt]el|[Tt]h|[Tt]heol|Ver|[Vv]gl|Vol|Zi|[Zz]it
+[A-ZÄÖÜ]\\.-[A-ZÄÖÜ]|al|bspw?|bzw|ca|co|div|entspr|etc|evtl|excl
+exkl|<Nd>*ff|ggf|incl|inkl|jr|lt|max|min|mind|op|resp|soc|sog|usf|usw
+vs|wg|www|zzgl
+
+>*> LCName
+taz|dpa|1822direkt|3dfx|adidas|h2g2|heise|i-mode|id|t@x|tesion
+mediantis|debitel|speedlink
+
+>>> Prefix
+## prefixes such as 1000-, 16:9-, 2/3-, "Hochzeits"-, (Hochzeits-), 1.-
+## ABER: nicht 75/Carl-
+(<L>|<Nd>)+(\\.|[:/])?((<L>|[0-9])+)?-
+§<Nd>+-
+\((<L>|<Nd>)+-\)
+\"(<L>|<Nd>)+\"-
+>>> Word
+## 16jähriger, 100mal, -mal
+(<L>\.(<L>\.)+|((<L>|dell|nell)')?<Prefix>*<L>+(-|/Innen])?|<Nd>+-?<Lu>?<Ll>+-?|[']<Ll>+)
+>*> Number
+(<Nd>+(\.<Nd>{3})*(,<Nd>+)?|II|III|IV|V|X+V?I*)
+>>> Numeric
+## Telefonnummern, Uhrzeiten
+<Nd>+(:<Nd>+)+|0<Nd>{2,}/<Nd>+(-<Nd>+)*|<Nd>{3,}-(<Nd>+-)?(0|<Nd>{3,})|[12]?[0-9][:\.](15|[02-6][05])(,[0-9]{2})?
+>>> XY
+## U-235, Q2
+<Lu>+-?(<Number>|<Numeric>)
+## www.example.com hello@example.com http://example.com/page.jsp
+www\.<L>+\.<L>{2,4}
+<L>+@<L>+\.<L>{2,4}
+https?://(<L>|<Nd>|[/%]|\.)+
+
+>*> Token
+<XY>|<Word>|<Number>|<Numeric>|\.{2,}|<P>
+
+>*> PreOrd
+de[rmns]|das|die|im|zum|am|beim|(sein|ihr|jed|dies)e[mnrs]?
+
+>*> SentPunct
+\.|!|\?
